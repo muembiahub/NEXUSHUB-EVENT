@@ -13,10 +13,12 @@ const reviewsRoutes = require('./routes/reviews');
 
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 app.use(cookieSession({
   name: 'session',
-  keys: [process.env.SESSION_SECRET || 'default-session-secret'],
+  keys: [process.env.SESSION_SECRET || 'def6&ult-ses0#ion-sec9et'],
   maxAge: 24 * 60 * 60 * 1000,
 }));
 app.use(require('passport').initialize());
@@ -29,6 +31,6 @@ app.use('/users', usersRoutes);
 app.use('/registrations', registrationsRoutes);
 app.use('/reviews', reviewsRoutes);
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

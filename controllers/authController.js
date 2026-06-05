@@ -36,7 +36,7 @@ if (githubClientID && githubClientSecret) {
       {
         clientID: githubClientID,
         clientSecret: githubClientSecret,
-        callbackURL: `${callbackBase}/auth/callback`,
+        callbackURL: `${callbackBase}/auth/github/callback`,
       },
       (accessToken, refreshToken, profile, done) => {
         const user = buildOAuthUser('github', profile);
