@@ -8,13 +8,12 @@ const GithubStrategy = require('passport-github2').Strategy;
 const app = express();
 const cors = require('cors');
 
-const homepage = require('./routes/home');
 const authRoutes = require('./routes/auth');
 const eventsRoutes = require('./routes/events');
 const usersRoutes = require('./routes/users');
 const registrationsRoutes = require('./routes/registrations');
 const reviewsRoutes = require('./routes/reviews');
-const requireAuth = require('./middleware/validator').requireAuth;
+const isAuthenticated = require('./middleware/validator').isAuthenticated;
 
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
@@ -74,15 +73,21 @@ done(null, user);
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/', homepage);
 app.use('/', authRoutes);
-app.use('/events', requireAuth, eventsRoutes);
-app.use('/users', requireAuth, usersRoutes);
-app.use('/registrations', requireAuth, registrationsRoutes);
-app.use('/reviews', requireAuth, reviewsRoutes);
-app.use((req, res) => {
-  res.status(404).send('404 Not Found - The requested resource does not exist.');
-});
+app.use('/events', isAuthenticated, eventsRoutes);
+app.use('/users', isAuthenticated, usersRoutes);
+app.use('/registrations', isAuthenticated, registrationsRoutes);
+app.use('/reviews', isAuthenticated, reviewsRoutes);
+
+
+// home route
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+return res.send(`Welcome ${req.user.username}! You are authenticated.`);
+  }
+
+  res.send('Welcome! You are not authenticated.');
+  });
 
 
 
@@ -99,6 +104,10 @@ app.get(
   );
 
 
+//  404 handler for unmatched routes
+  app.use((req, res) => {
+  res.status(404).send('404 Not Found - The requested resource does not exist.');
+});
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

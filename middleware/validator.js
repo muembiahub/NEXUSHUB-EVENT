@@ -1,4 +1,4 @@
-function requireAuth(req, res, next) {
+function isAuthenticated(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
   }
@@ -17,6 +17,6 @@ function fieldValidator(requiredFields) {
 
 
 module.exports = {
-  requireAuth,
+  isAuthenticated,
     fieldValidator
 };
