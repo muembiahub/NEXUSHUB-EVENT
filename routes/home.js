@@ -1,5 +1,6 @@
 const express = require ('express');
 const homepage  = require('../controllers/homepageControllers').homepage;
+const requireAuth = require('../middleware/authMiddleware').requireAuth;
 const router = express.Router();
 
 /**
@@ -12,6 +13,6 @@ const router = express.Router();
  *       200:
  *         description: Success
  */
-router.get('/', homepage);
+router.get('/', requireAuth, homepage);
 
 module.exports = router;
