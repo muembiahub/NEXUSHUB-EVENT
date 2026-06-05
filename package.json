@@ -4,7 +4,16 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "cookie-session": "^2.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "module": "^2.0.0",
+    "passport": "^0.6.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui": "^5.32.6",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

@@ -1,0 +1,124 @@
+const passport = require('passport');
+const GitHubStrategy = require('passport-github2').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const authModel = require('../models/authModel');
+
+const githubClientID = process.env.GITHUB_CLIENT_ID;
+const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+const googleClientID = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const callbackBase = process.env.AUTH_CALLBACK_BASE_URL || 'http://localhost:3000';
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  const user = authModel.getUserById(id);
+  done(null, user || null);
+});
+
+function buildOAuthUser(provider, profile) {
+  const providerId = profile.id;
+  const displayName = profile.displayName || profile.username || '';
+  const email = Array.isArray(profile.emails) && profile.emails.length ? profile.emails[0].value : '';
+  const avatar = Array.isArray(profile.photos) && profile.photos.length ? profile.photos[0].value : '';
+
+  return authModel.createOrUpdateOAuthUser({
+    provider,
+    providerId,
+    displayName,
+    email,
+    avatar,
+  });
+}
+
+if (githubClientID && githubClientSecret) {
+  passport.use(
+    new GitHubStrategy(
+      {
+        clientID: githubClientID,
+        clientSecret: githubClientSecret,
+        callbackURL: `${callbackBase}/auth/github/callback`,
+      },
+      (accessToken, refreshToken, profile, done) => {
+        const user = buildOAuthUser('github', profile);
+        done(null, user);
+      }
+    )
+  );
+}
+
+if (googleClientID && googleClientSecret) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: googleClientID,
+        clientSecret: googleClientSecret,
+        callbackURL: `${callbackBase}/auth/google/callback`,
+      },
+      (accessToken, refreshToken, profile, done) => {
+        const user = buildOAuthUser('google', profile);
+        done(null, user);
+      }
+    )
+  );
+}
+
+function ensureGitHubConfigured(req, res, next) {
+  if (!githubClientID || !githubClientSecret) {
+    return res.status(500).json({ error: 'GitHub auth is not configured' });
+  }
+  next();
+}
+
+function ensureGoogleConfigured(req, res, next) {
+  if (!googleClientID || !googleClientSecret) {
+    return res.status(500).json({ error: 'Google auth is not configured' });
+  }
+  next();
+}
+
+function githubCallback(req, res) {
+  res.json({ authenticated: true, provider: 'github', user: req.user });
+}
+
+function googleCallback(req, res) {
+  res.json({ authenticated: true, provider: 'google', user: req.user });
+}
+
+function status(req, res) {
+  res.json({
+    authenticated: req.isAuthenticated && req.isAuthenticated(),
+    user: req.user || null,
+  });
+}
+
+function failure(req, res) {
+  res.status(401).json({ error: 'Authentication failed' });
+}
+
+function logout(req, res) {
+  req.session = null;
+  req.logout?.();
+  res.json({ success: true });
+}
+
+function requireAuth(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+module.exports = {
+  passport,
+  ensureGitHubConfigured,
+  ensureGoogleConfigured,
+  githubCallback,
+  googleCallback,
+  status,
+  failure,
+  logout,
+  requireAuth,
+};
