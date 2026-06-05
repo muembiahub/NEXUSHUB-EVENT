@@ -14,6 +14,7 @@ const eventsRoutes = require('./routes/events');
 const usersRoutes = require('./routes/users');
 const registrationsRoutes = require('./routes/registrations');
 const reviewsRoutes = require('./routes/reviews');
+const requireAuth = require('./middleware/validator').requireAuth;
 
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
@@ -75,10 +76,14 @@ done(null, user);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', homepage);
 app.use('/', authRoutes);
-app.use('/events', eventsRoutes);
-app.use('/users', usersRoutes);
-app.use('/registrations', registrationsRoutes);
-app.use('/reviews', reviewsRoutes);
+app.use('/events', requireAuth, eventsRoutes);
+app.use('/users', requireAuth, usersRoutes);
+app.use('/registrations', requireAuth, registrationsRoutes);
+app.use('/reviews', requireAuth, reviewsRoutes);
+app.use((req, res) => {
+  res.status(404).send('404 Not Found - The requested resource does not exist.');
+});
+
 
 
 // callback route for GitHub authentication
