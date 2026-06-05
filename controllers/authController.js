@@ -1,12 +1,9 @@
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const authModel = require('../models/authModel');
 
 const githubClientID = process.env.GITHUB_CLIENT_ID;
 const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
-const googleClientID = process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const callbackBase = process.env.AUTH_CALLBACK_BASE_URL || 'http://localhost:3000';
 
 passport.serializeUser((user, done) => {
@@ -39,26 +36,10 @@ if (githubClientID && githubClientSecret) {
       {
         clientID: githubClientID,
         clientSecret: githubClientSecret,
-        callbackURL: `${callbackBase}/auth/github/callback`,
+        callbackURL: `${callbackBase}/auth/callback`,
       },
       (accessToken, refreshToken, profile, done) => {
         const user = buildOAuthUser('github', profile);
-        done(null, user);
-      }
-    )
-  );
-}
-
-if (googleClientID && googleClientSecret) {
-  passport.use(
-    new GoogleStrategy(
-      {
-        clientID: googleClientID,
-        clientSecret: googleClientSecret,
-        callbackURL: `${callbackBase}/auth/google/callback`,
-      },
-      (accessToken, refreshToken, profile, done) => {
-        const user = buildOAuthUser('google', profile);
         done(null, user);
       }
     )
@@ -72,19 +53,8 @@ function ensureGitHubConfigured(req, res, next) {
   next();
 }
 
-function ensureGoogleConfigured(req, res, next) {
-  if (!googleClientID || !googleClientSecret) {
-    return res.status(500).json({ error: 'Google auth is not configured' });
-  }
-  next();
-}
-
 function githubCallback(req, res) {
   res.json({ authenticated: true, provider: 'github', user: req.user });
-}
-
-function googleCallback(req, res) {
-  res.json({ authenticated: true, provider: 'google', user: req.user });
 }
 
 function status(req, res) {
@@ -114,9 +84,7 @@ function requireAuth(req, res, next) {
 module.exports = {
   passport,
   ensureGitHubConfigured,
-  ensureGoogleConfigured,
   githubCallback,
-  googleCallback,
   status,
   failure,
   logout,

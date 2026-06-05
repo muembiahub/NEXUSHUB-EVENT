@@ -8,7 +8,7 @@ const swaggerOptions = {
     info: {
       title: 'NEXUSHUB-EVENT API',
       version: '1.0.0',
-      description: 'API documentation for NEXUSHUB-EVENT project',
+      description: 'API documentation for NEXUSHUB-EVENT project using Swagger, including endpoints for users, events, registrations, and reviews.',
     },
   },
   apis: ['./routes/*.js'],
