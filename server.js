@@ -23,7 +23,7 @@ app.use(require('passport').initialize());
 app.use(require('passport').session());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', homepage);
-app.use('/auth', authRoutes);
+app.use('/', authRoutes);
 app.use('/events', eventsRoutes);
 app.use('/users', usersRoutes);
 app.use('/registrations', registrationsRoutes);
