@@ -1,5 +1,5 @@
 function homepage(req, res) {
-  res.send(`Homepage message ${req.user ? `- Welcome, ${req.user.username}!` : '- Please log in to access more features.'}`);
+  res.send(`${req.user ? `- Welcome, ${req.user.email}!` : '- Please log in to access more features.'}`);
 }
 
 module.exports = { homepage };
