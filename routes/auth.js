@@ -1,28 +1,33 @@
 const express = require('express');
-const authController = require('../controllers/authController');
+const passport = require('passport');
 
-const authRouter = express.Router();
+const router = express.Router();
 
+/**
 
-authRouter.get('/login', authController.ensureGitHubConfigured, authController.passport.authenticate('github', { scope: ['user:email'] }));
+* Login with GitHub
+  */
+  router.get(
+  '/login',
+  passport.authenticate('github', {
+  scope: ['user:email']
+  })
+  );
 
-authRouter.get('/auth/github/callback', 
-    authController.passport.authenticate('github', { failureRedirect: '/api-docs', session: true }),
-    (req, res, next) => {
-        // 1. Assign the user data to the session
-        req.session.user = req.user;
-        
-        // 2. FORCE the session to save to memory/database before moving on
-        req.session.save((err) => {
-            if (err) {
-                return next(err);
-            }
-            // 3. ONLY redirect once we are 100% sure the session is stored safely
-            res.redirect('/');
-        });
-    }
-);
-authRouter.post('/logout', authController.logout);
+/**
 
+* Logout
+  */
+  router.get('/logout', (req, res, next) => {
+  req.logout((err) => {
+  if (err) {
+  return next(err);
+  }
 
-module.exports = authRouter;
+  req.session.destroy(() => {
+  res.redirect('/');
+  });
+  });
+  });
+
+module.exports = router;
