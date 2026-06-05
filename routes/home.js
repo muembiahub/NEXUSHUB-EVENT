@@ -1,6 +1,6 @@
 const express = require ('express');
 const homepage  = require('../controllers/homepageControllers').homepage;
-const requireAuth = require('../middleware/authMiddleware').requireAuth;
+const requireAuth = require('../middleware/validator').requireAuth;
 const router = express.Router();
 
 /**
