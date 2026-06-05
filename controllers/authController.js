@@ -4,7 +4,7 @@ const authModel = require('../models/authModel');
 
 const githubClientID = process.env.GITHUB_CLIENT_ID;
 const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
-const callbackBase = process.env.AUTH_CALLBACK_BASE_URL || 'http://localhost:3000';
+const callbackBase = process.env.GITHUB_CALLBACK_URL || 'http://localhost:3000';
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -36,7 +36,7 @@ if (githubClientID && githubClientSecret) {
       {
         clientID: githubClientID,
         clientSecret: githubClientSecret,
-        callbackURL: `${callbackBase}/auth/github/callback`,
+        callbackURL: `${callbackBase}`,
       },
       (accessToken, refreshToken, profile, done) => {
         const user = buildOAuthUser('github', profile);
@@ -48,7 +48,7 @@ if (githubClientID && githubClientSecret) {
 
 function ensureGitHubConfigured(req, res, next) {
   if (!githubClientID || !githubClientSecret) {
-    return res.status(500).json({ error: 'GitHub auth is not configured' });
+    return res.status(500).send('GitHub auth is not configured');
   }
   next();
 }
@@ -65,7 +65,7 @@ function status(req, res) {
 }
 
 function failure(req, res) {
-  res.status(401).json({ error: 'Authentication failed' });
+  res.status(401).send('Authentication failed');
 }
 
 function logout(req, res) {
@@ -78,7 +78,7 @@ function requireAuth(req, res, next) {
   if (req.isAuthenticated && req.isAuthenticated()) {
     return next();
   }
-  return res.status(401).json({ error: 'Unauthorized' });
+  return res.status(401).send('Unauthorized - Authentication required Please log in.' );
 }
 
 module.exports = {
