@@ -80,6 +80,20 @@ app.use('/users', usersRoutes);
 app.use('/registrations', registrationsRoutes);
 app.use('/reviews', reviewsRoutes);
 
+
+// callback route for GitHub authentication
+app.get(
+  '/auth/github/callback',
+  passport.authenticate('github', {
+  failureRedirect: '/api-docs',
+  session: true
+  }),
+  (req, res) => {
+  res.redirect('/');
+  }
+  );
+
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
