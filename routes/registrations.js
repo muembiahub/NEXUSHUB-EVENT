@@ -23,27 +23,7 @@ router.get('/', controller.getRegistrations);
 
 /**
  * @swagger
- * /registrations/{id}:
- *   get:
- *     summary: Get a registration by ID
- *     tags: [Registrations]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Registration found
- *       404:
- *         description: Registration not found
- */
-router.get('/:id', controller.getRegistration);
-
-/**
- * @swagger
- * /registrations:
+ * /registrations/create:
  *   post:
  *     summary: Create a new registration
  *     tags: [Registrations]
@@ -64,11 +44,11 @@ router.get('/:id', controller.getRegistration);
  *       201:
  *         description: Registration created
  */
-router.post('/', controller.createRegistration);
+router.post('/create', controller.createRegistration);
 
 /**
  * @swagger
- * /registrations/{id}:
+ * /registrations/update/{id}:
  *   put:
  *     summary: Update a registration
  *     tags: [Registrations]
@@ -93,11 +73,11 @@ router.post('/', controller.createRegistration);
  *       404:
  *         description: Registration not found
  */
-router.put('/:id', controller.updateRegistration);
+router.put('/update/:id', controller.updateRegistration);
 
 /**
  * @swagger
- * /registrations/{id}:
+ * /registrations/delete/{id}:
  *   delete:
  *     summary: Delete a registration
  *     tags: [Registrations]
@@ -113,6 +93,26 @@ router.put('/:id', controller.updateRegistration);
  *       404:
  *         description: Registration not found
  */
-router.delete('/:id', controller.deleteRegistration);
+router.delete('/delete/:id', controller.deleteRegistration);
+
+/**
+ * @swagger
+ * /registrations/{id}:
+ *   get:
+ *     summary: Get a registration by ID
+ *     tags: [Registrations]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Registration found
+ *       404:
+ *         description: Registration not found
+ */
+router.get('/:id', controller.getRegistration);
 
 module.exports = router;

@@ -23,27 +23,7 @@ router.get('/', controller.getReviews);
 
 /**
  * @swagger
- * /reviews/{id}:
- *   get:
- *     summary: Get a review by ID
- *     tags: [Reviews]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Review found
- *       404:
- *         description: Review not found
- */
-router.get('/:id', controller.getReview);
-
-/**
- * @swagger
- * /reviews:
+ * /reviews/create:
  *   post:
  *     summary: Create a new review
  *     tags: [Reviews]
@@ -66,11 +46,11 @@ router.get('/:id', controller.getReview);
  *       201:
  *         description: Review created
  */
-router.post('/', controller.createReview);
+router.post('/create', controller.createReview);
 
 /**
  * @swagger
- * /reviews/{id}:
+ * /reviews/update/{id}:
  *   put:
  *     summary: Update a review
  *     tags: [Reviews]
@@ -97,11 +77,11 @@ router.post('/', controller.createReview);
  *       404:
  *         description: Review not found
  */
-router.put('/:id', controller.updateReview);
+router.put('/update/:id', controller.updateReview);
 
 /**
  * @swagger
- * /reviews/{id}:
+ * /reviews/delete/{id}:
  *   delete:
  *     summary: Delete a review
  *     tags: [Reviews]
@@ -117,6 +97,26 @@ router.put('/:id', controller.updateReview);
  *       404:
  *         description: Review not found
  */
-router.delete('/:id', controller.deleteReview);
+router.delete('/delete/:id', controller.deleteReview);
+
+/**
+ * @swagger
+ * /reviews/{id}:
+ *   get:
+ *     summary: Get a review by ID
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review found
+ *       404:
+ *         description: Review not found
+ */
+router.get('/:id', controller.getReview);
 
 module.exports = router;

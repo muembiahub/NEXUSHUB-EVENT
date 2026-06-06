@@ -1,43 +1,57 @@
-const registrations = [];
-let nextRegistrationId = 1;
+const mongoose = require('mongoose');
 
-function getAllRegistrations() {
-  return registrations;
-}
+const registrationSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  eventId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['registered', 'attended', 'cancelled'],
+    default: 'registered',
+  },
+  registeredAt: {
+    type: Date,
+    default: Date.now,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-function getRegistrationById(id) {
-  return registrations.find((registration) => registration.id === id);
-}
+registrationSchema.index({ userId: 1, eventId: 1 }, { unique: true });
 
-function createRegistration(data) {
-  const registration = {
-    id: String(nextRegistrationId++),
-    eventId: data.eventId || '',
-    userId: data.userId || '',
-    status: data.status || 'registered',
-    registeredAt: new Date().toISOString(),
-  };
+registrationSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  if (!this.createdAt) {
+    this.createdAt = this.updatedAt;
+  }
+  next();
+});
 
-  registrations.push(registration);
-  return registration;
-}
+registrationSchema.pre('findOneAndUpdate', function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
 
-function updateRegistration(id, data) {
-  const registration = getRegistrationById(id);
-  if (!registration) return null;
+const Registration = mongoose.model('Registration', registrationSchema);
 
-  registration.status = data.status ?? registration.status;
-  registration.eventId = data.eventId ?? registration.eventId;
-  registration.userId = data.userId ?? registration.userId;
-
-  return registration;
-}
-
-function deleteRegistration(id) {
-  const index = registrations.findIndex((registration) => registration.id === id);
-  if (index === -1) return null;
-  return registrations.splice(index, 1)[0];
-}
+const getAllRegistrations = () => Registration.find();
+const getRegistrationById = (id) => Registration.findById(id);
+const createRegistration = (data) => Registration.create(data);
+const updateRegistration = (id, data) => Registration.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+const deleteRegistration = (id) => Registration.findByIdAndDelete(id);
 
 module.exports = {
   getAllRegistrations,

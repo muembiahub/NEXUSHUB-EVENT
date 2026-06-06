@@ -1,16 +1,17 @@
 const eventsModel = require('../models/eventsModel');
 
-function getEvents(req, res) {
+const getEvents = async (req, res) => {
   try {
-    res.json(eventsModel.getAllEvents());
+    const events = await eventsModel.getAllEvents();
+    res.json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function getEvent(req, res) {
+const getEvent = async (req, res) => {
   try {
-    const event = eventsModel.getEventById(req.params.id);
+    const event = await eventsModel.getEventById(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -18,20 +19,20 @@ function getEvent(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function createEvent(req, res) {
+const createEvent = async (req, res) => {
   try {
-    const event = eventsModel.createEvent(req.body);
+    const event = await eventsModel.createEvent(req.body);
     res.status(201).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function updateEvent(req, res) {
+const updateEvent = async (req, res) => {
   try {
-    const event = eventsModel.updateEvent(req.params.id, req.body);
+    const event = await eventsModel.updateEvent(req.params.id, req.body);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -39,11 +40,11 @@ function updateEvent(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function deleteEvent(req, res) {
+const deleteEvent = async (req, res) => {
   try {
-    const event = eventsModel.deleteEvent(req.params.id);
+    const event = await eventsModel.deleteEvent(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -51,7 +52,7 @@ function deleteEvent(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 module.exports = {
   getEvents,

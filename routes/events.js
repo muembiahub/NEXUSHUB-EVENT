@@ -22,27 +22,7 @@ router.get('/', controller.getEvents);
 
 /**
  * @swagger
- * /events/{id}:
- *   get:
- *     summary: Get an event by ID
- *     tags: [Events]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Event found
- *       404:
- *         description: Event not found
- */
-router.get('/:id', controller.getEvent);
-
-/**
- * @swagger
- * /events:
+ * /events/create:
  *   post:
  *     summary: Create a new event
  *     tags: [Events]
@@ -67,11 +47,11 @@ router.get('/:id', controller.getEvent);
  *       201:
  *         description: Event created
  */
-router.post('/', controller.createEvent);
+router.post('/create', controller.createEvent);
 
 /**
  * @swagger
- * /events/{id}:
+ * /events/update/{id}:
  *   put:
  *     summary: Update an existing event
  *     tags: [Events]
@@ -104,11 +84,11 @@ router.post('/', controller.createEvent);
  *       404:
  *         description: Event not found
  */
-router.put('/:id', controller.updateEvent);
+router.put('/update/:id', controller.updateEvent);
 
 /**
  * @swagger
- * /events/{id}:
+ * /events/delete/{id}:
  *   delete:
  *     summary: Delete an event
  *     tags: [Events]
@@ -124,6 +104,26 @@ router.put('/:id', controller.updateEvent);
  *       404:
  *         description: Event not found
  */
-router.delete('/:id', controller.deleteEvent);
+router.delete('/delete/:id', controller.deleteEvent);
+
+/**
+ * @swagger
+ * /events/{id}:
+ *   get:
+ *     summary: Get an event by ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Event found
+ *       404:
+ *         description: Event not found
+ */
+router.get('/:id', controller.getEvent);
 
 module.exports = router;

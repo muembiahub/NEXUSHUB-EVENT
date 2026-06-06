@@ -18,8 +18,8 @@ const isAuthenticated = require('./middleware/validator').isAuthenticated;
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
 
+const connectDB = require('./config/db');
 const PORT = process.env.PORT || 3000;
-
 app.set('trust proxy', 1);
 app.use(bodyParser.json());
 app.use(cors({
@@ -75,7 +75,7 @@ done(null, user);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
-app.use('/users', isAuthenticated, usersRoutes);
+app.use('/users',usersRoutes);
 app.use('/registrations', isAuthenticated, registrationsRoutes);
 app.use('/reviews', isAuthenticated, reviewsRoutes);
 
@@ -108,6 +108,20 @@ app.get(
   app.use((req, res) => {
   res.status(404).send('404 Not Found - The requested resource does not exist.');
 });
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+
+//   Start Server
+  async function startServer() {
+  try {
+  await connectDB();
+
+  app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log('✅ MongoDB connected');
+  });
+  } catch (error) {
+  console.error('❌ Failed to start server:', error.message);
+  process.exit(1);
+  }
+  }
+
+startServer();

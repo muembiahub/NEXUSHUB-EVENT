@@ -1,46 +1,54 @@
-const users = [];
-let nextUserId = 1;
+const mongoose = require('mongoose');
 
-function getAllUsers() {
-  return users;
-}
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  organization: {
+    type: String,
+    default: '',
+  },
+  role: {
+    type: String,
+    default: '',
+  },
+  password: {
+    type: String,
+    default: '',
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-function getUserById(id) {
-  return users.find((user) => user.id === id);
-}
+userSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  if (!this.createdAt) {
+    this.createdAt = this.updatedAt;
+  }
+  next();
+});
 
-function createUser(data) {
-  const user = {
-    id: String(nextUserId++),
-    name: data.name || '',
-    email: data.email || '',
-    createdAt: new Date().toISOString(),
-  };
+userSchema.pre('findOneAndUpdate', function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
 
-  users.push(user);
-  return user;
-}
-
-function updateUser(id, data) {
-  const user = getUserById(id);
-  if (!user) return null;
-
-  user.name = data.name ?? user.name;
-  user.email = data.email ?? user.email;
-
-  return user;
-}
-
-function deleteUser(id) {
-  const index = users.findIndex((user) => user.id === id);
-  if (index === -1) return null;
-  return users.splice(index, 1)[0];
-}
-
-module.exports = {
-  getAllUsers,
-  getUserById,
-  createUser,
-  updateUser,
-  deleteUser,
+userSchema.statics.getUserById = function (id) {
+  return this.findById(id);
 };
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

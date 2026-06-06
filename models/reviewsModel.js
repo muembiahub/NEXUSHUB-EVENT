@@ -1,45 +1,58 @@
-const reviews = [];
-let nextReviewId = 1;
+const mongoose = require('mongoose');
 
-function getAllReviews() {
-  return reviews;
-}
+const reviewSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  eventId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    required: true,
+  },
+  rating: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5,
+  },
+  comment: {
+    type: String,
+    default: '',
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-function getReviewById(id) {
-  return reviews.find((review) => review.id === id);
-}
+reviewSchema.index({ userId: 1, eventId: 1 }, { unique: true });
 
-function createReview(data) {
-  const review = {
-    id: String(nextReviewId++),
-    eventId: data.eventId || '',
-    userId: data.userId || '',
-    rating: Number(data.rating) || 0,
-    comment: data.comment || '',
-    createdAt: new Date().toISOString(),
-  };
+reviewSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  if (!this.createdAt) {
+    this.createdAt = this.updatedAt;
+  }
+  next();
+});
 
-  reviews.push(review);
-  return review;
-}
+reviewSchema.pre('findOneAndUpdate', function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
 
-function updateReview(id, data) {
-  const review = getReviewById(id);
-  if (!review) return null;
+const Review = mongoose.model('Review', reviewSchema);
 
-  review.rating = data.rating !== undefined ? Number(data.rating) : review.rating;
-  review.comment = data.comment ?? review.comment;
-  review.eventId = data.eventId ?? review.eventId;
-  review.userId = data.userId ?? review.userId;
-
-  return review;
-}
-
-function deleteReview(id) {
-  const index = reviews.findIndex((review) => review.id === id);
-  if (index === -1) return null;
-  return reviews.splice(index, 1)[0];
-}
+const getAllReviews = () => Review.find();
+const getReviewById = (id) => Review.findById(id);
+const createReview = (data) => Review.create(data);
+const updateReview = (id, data) => Review.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+const deleteReview = (id) => Review.findByIdAndDelete(id);
 
 module.exports = {
   getAllReviews,

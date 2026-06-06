@@ -1,18 +1,19 @@
 const registrationsModel = require('../models/registrationsModel');
-const usersModel = require('../models/usersModel');
+const User = require('../models/usersModel');
 const eventsModel = require('../models/eventsModel');
 
-function getRegistrations(req, res) {
+const getRegistrations = async (req, res) => {
   try {
-    res.json(registrationsModel.getAllRegistrations());
+    const registrations = await registrationsModel.getAllRegistrations();
+    res.json(registrations);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function getRegistration(req, res) {
+const getRegistration = async (req, res) => {
   try {
-    const registration = registrationsModel.getRegistrationById(req.params.id);
+    const registration = await registrationsModel.getRegistrationById(req.params.id);
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
@@ -20,33 +21,42 @@ function getRegistration(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function createRegistration(req, res) {
+const createRegistration = async (req, res) => {
   try {
     const { userId, eventId } = req.body;
-    if (!usersModel.getUserById(userId) || !eventsModel.getEventById(eventId)) {
+    const user = await User.getUserById(userId);
+    const event = await eventsModel.getEventById(eventId);
+
+    if (!user || !event) {
       return res.status(400).json({ error: 'Invalid userId or eventId' });
     }
 
-    const registration = registrationsModel.createRegistration(req.body);
+    const registration = await registrationsModel.createRegistration(req.body);
     res.status(201).json(registration);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function updateRegistration(req, res) {
+const updateRegistration = async (req, res) => {
   try {
-    if (req.body.userId && !usersModel.getUserById(req.body.userId)) {
-      return res.status(400).json({ error: 'Invalid userId' });
+    if (req.body.userId) {
+      const user = await User.getUserById(req.body.userId);
+      if (!user) {
+        return res.status(400).json({ error: 'Invalid userId' });
+      }
     }
 
-    if (req.body.eventId && !eventsModel.getEventById(req.body.eventId)) {
-      return res.status(400).json({ error: 'Invalid eventId' });
+    if (req.body.eventId) {
+      const event = await eventsModel.getEventById(req.body.eventId);
+      if (!event) {
+        return res.status(400).json({ error: 'Invalid eventId' });
+      }
     }
 
-    const registration = registrationsModel.updateRegistration(req.params.id, req.body);
+    const registration = await registrationsModel.updateRegistration(req.params.id, req.body);
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
@@ -54,11 +64,11 @@ function updateRegistration(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-function deleteRegistration(req, res) {
+const deleteRegistration = async (req, res) => {
   try {
-    const registration = registrationsModel.deleteRegistration(req.params.id);
+    const registration = await registrationsModel.deleteRegistration(req.params.id);
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
@@ -66,7 +76,7 @@ function deleteRegistration(req, res) {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 module.exports = {
   getRegistrations,

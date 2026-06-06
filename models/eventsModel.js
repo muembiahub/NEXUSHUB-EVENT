@@ -1,47 +1,56 @@
-const events = [];
-let nextEventId = 1;
+const mongoose = require('mongoose');
 
-function getAllEvents() {
-  return events;
-}
+const eventSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    default: '',
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  capacity: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-function getEventById(id) {
-  return events.find((event) => event.id === id);
-}
+eventSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  if (!this.createdAt) {
+    this.createdAt = this.updatedAt;
+  }
+  next();
+});
 
-function createEvent(data) {
-  const event = {
-    id: String(nextEventId++),
-    name: data.name || '',
-    description: data.description || '',
-    date: data.date || '',
-    location: data.location || '',
-    capacity: Number(data.capacity) || 0,
-    createdAt: new Date().toISOString(),
-  };
+eventSchema.pre('findOneAndUpdate', function (next) {
+  this.set({ updatedAt: new Date() });
+  next();
+});
 
-  events.push(event);
-  return event;
-}
+const Event = mongoose.model('Event', eventSchema);
 
-function updateEvent(id, data) {
-  const event = getEventById(id);
-  if (!event) return null;
-
-  event.name = data.name ?? event.name;
-  event.description = data.description ?? event.description;
-  event.date = data.date ?? event.date;
-  event.location = data.location ?? event.location;
-  event.capacity = data.capacity !== undefined ? Number(data.capacity) : event.capacity;
-
-  return event;
-}
-
-function deleteEvent(id) {
-  const index = events.findIndex((event) => event.id === id);
-  if (index === -1) return null;
-  return events.splice(index, 1)[0];
-}
+const getAllEvents = () => Event.find();
+const getEventById = (id) => Event.findById(id);
+const createEvent = (data) => Event.create(data);
+const updateEvent = (id, data) => Event.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+const deleteEvent = (id) => Event.findByIdAndDelete(id);
 
 module.exports = {
   getAllEvents,
