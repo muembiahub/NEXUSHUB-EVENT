@@ -4,63 +4,35 @@ const registrationSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: [true, 'User ID is required'],
+    required: true
   },
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
-    required: [true, 'Event ID is required'],
-  },
-  status: {
-    type: String,
-    enum: {
-      values: ['registered', 'attended', 'cancelled'],
-      message: 'Status must be registered, attended, or cancelled',
-    },
-    default: 'registered',
-    trim: true,
-  },
-  registeredAt: {
-    type: Date,
-    default: Date.now,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-registrationSchema.index({ userId: 1, eventId: 1 }, { unique: true });
-
-registrationSchema.pre('save', function (next) {
-  this.updatedAt = new Date();
-  if (!this.createdAt) {
-    this.createdAt = this.updatedAt;
+    required: true
   }
-  next();
-});
+}, { timestamps: true });
 
-registrationSchema.pre('findOneAndUpdate', function (next) {
-  this.set({ updatedAt: new Date() });
-  next();
-});
+// Static methods used by registrationsController
+registrationSchema.statics.getAllRegistrations = function() {
+  return this.find().populate('userId', '-password').populate('eventId');
+};
+
+registrationSchema.statics.getRegistrationById = function(id) {
+  return this.findById(id).populate('userId', '-password').populate('eventId');
+};
+
+registrationSchema.statics.createRegistration = function(registrationData) {
+  return this.create(registrationData);
+};
+
+registrationSchema.statics.updateRegistration = function(id, updateData) {
+  return this.findByIdAndUpdate(id, updateData, { new: true });
+};
+
+registrationSchema.statics.deleteRegistration = function(id) {
+  return this.findByIdAndDelete(id);
+};
 
 const Registration = mongoose.model('Registration', registrationSchema);
-
-const getAllRegistrations = () => Registration.find();
-const getRegistrationById = (id) => Registration.findById(id);
-const createRegistration = (data) => Registration.create(data);
-const updateRegistration = (id, data) => Registration.findByIdAndUpdate(id, data, { new: true, runrequireAuths: true });
-const deleteRegistration = (id) => Registration.findByIdAndDelete(id);
-
-module.exports = {
-  getAllRegistrations,
-  getRegistrationById,
-  createRegistration,
-  updateRegistration,
-  deleteRegistration,
-};
+module.exports = Registration;
