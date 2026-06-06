@@ -1,5 +1,5 @@
 const express = require('express');
-const controller = require('../controllers/usersController');
+const userController = require('../controllers/usersController');
 const router = express.Router();
 
 /**
@@ -19,7 +19,7 @@ const router = express.Router();
  *       200:
  *         description: List of users
  */
-router.get('/', controller.getUsers);
+router.get('/', userController.getUsers);
 
 /**
  * @swagger
@@ -39,7 +39,7 @@ router.get('/', controller.getUsers);
  *       404:
  *         description: User not found
  */
-router.get('/:id', controller.getUser);
+router.get('/:id', userController.getUser);
 
 
 /**
@@ -54,16 +54,39 @@ router.get('/:id', controller.getUser);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Jonathan Muembia
  *               email:
  *                 type: string
+ *                 example: jonathan@example.com
+ *               password:
+ *                 type: string
+ *                 example: "********"
+ *               organization:
+ *                 type: string
+ *                 example: NexusHub
+ *               role:
+ *                 type: string
+ *                 example: user
  *     responses:
  *       201:
- *         description: User created
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: './models/userModel'
+ *       400:
+ *         description: Invalid user data
+ *       500:
+ *         description: Server error
  */
-router.post('/create', controller.createUser);
+router.post('/create',(req, res) => userController.createUser(req, res));
 
 /**
  * @swagger
@@ -83,18 +106,36 @@ router.post('/create', controller.createUser);
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Jonathan Muembia
  *               email:
  *                 type: string
+ *                 example: jonathan@example.com
+ *               password:
+ *                 type: string
+ *                 example: "********"
+ *               organization:
+ *                 type: string
+ *                 example: NexusHub
+ *               role:
+ *                 type: string
+ *                 example: user
  *     responses:
  *       200:
  *         description: User updated
  *       404:
- *         description: User not found
+ *         description: User not found with given ID
+ *       500:
+ *         description: Server error
  */
-router.put('/update/:id', controller.updateUser);
+router.put('/update/:id', (req, res) => userController.updateUser(req, res));
+
 
 /**
  * @swagger
@@ -114,7 +155,7 @@ router.put('/update/:id', controller.updateUser);
  *       404:
  *         description: User not found
  */
-router.delete('/delete/:id', controller.deleteUser);
+router.delete('/delete/:id', userController.deleteUser);
 
 
 
