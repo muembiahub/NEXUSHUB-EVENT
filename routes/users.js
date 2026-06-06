@@ -23,6 +23,27 @@ router.get('/', controller.getUsers);
 
 /**
  * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User found
+ *       404:
+ *         description: User not found
+ */
+router.get('/:id', controller.getUser);
+
+
+/**
+ * @swagger
  * /users/create:
  *   post:
  *     summary: Create a new user
@@ -95,24 +116,6 @@ router.put('/update/:id', controller.updateUser);
  */
 router.delete('/delete/:id', controller.deleteUser);
 
-/**
- * @swagger
- * /users/{id}:
- *   get:
- *     summary: Get a user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User found
- *       404:
- *         description: User not found
- */
-router.get('/:id', controller.getUser);
+
 
 module.exports = router;

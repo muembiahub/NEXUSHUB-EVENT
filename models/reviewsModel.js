@@ -4,22 +4,24 @@ const reviewSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: [true, 'User ID is required'],
   },
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
-    required: true,
+    required: [true, 'Event ID is required'],
   },
   rating: {
     type: Number,
-    required: true,
-    min: 0,
-    max: 5,
+    required: [true, 'Rating is required'],
+    min: [0, 'Rating cannot be less than 0'],
+    max: [5, 'Rating cannot be greater than 5'],
   },
   comment: {
     type: String,
     default: '',
+    trim: true,
+    maxlength: [500, 'Comment cannot exceed 500 characters'],
   },
   createdAt: {
     type: Date,
@@ -51,7 +53,7 @@ const Review = mongoose.model('Review', reviewSchema);
 const getAllReviews = () => Review.find();
 const getReviewById = (id) => Review.findById(id);
 const createReview = (data) => Review.create(data);
-const updateReview = (id, data) => Review.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+const updateReview = (id, data) => Review.findByIdAndUpdate(id, data, { new: true, runrequireAuths: true });
 const deleteReview = (id) => Review.findByIdAndDelete(id);
 
 module.exports = {

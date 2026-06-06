@@ -4,17 +4,21 @@ const registrationSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: [true, 'User ID is required'],
   },
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
-    required: true,
+    required: [true, 'Event ID is required'],
   },
   status: {
     type: String,
-    enum: ['registered', 'attended', 'cancelled'],
+    enum: {
+      values: ['registered', 'attended', 'cancelled'],
+      message: 'Status must be registered, attended, or cancelled',
+    },
     default: 'registered',
+    trim: true,
   },
   registeredAt: {
     type: Date,
@@ -50,7 +54,7 @@ const Registration = mongoose.model('Registration', registrationSchema);
 const getAllRegistrations = () => Registration.find();
 const getRegistrationById = (id) => Registration.findById(id);
 const createRegistration = (data) => Registration.create(data);
-const updateRegistration = (id, data) => Registration.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+const updateRegistration = (id, data) => Registration.findByIdAndUpdate(id, data, { new: true, runrequireAuths: true });
 const deleteRegistration = (id) => Registration.findByIdAndDelete(id);
 
 module.exports = {

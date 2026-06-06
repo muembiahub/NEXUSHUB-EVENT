@@ -6,7 +6,7 @@ use('nexushub_event');
 
 // Create events collection
 db.createCollection('events', {
-  validator: {
+  requireAuth: {
     $jsonSchema: {
       bsonType: 'object',
       required: ['name', 'date', 'location'],
@@ -26,7 +26,7 @@ db.createCollection('events', {
 
 // Create users collection
 db.createCollection('users', {
-  validator: {
+  requireAuth: {
     $jsonSchema: {
       bsonType: 'object',
       required: ['name', 'email'],
@@ -45,7 +45,7 @@ db.createCollection('users', {
 
 // Create registrations collection
 db.createCollection('registrations', {
-  validator: {
+  requireAuth: {
     $jsonSchema: {
       bsonType: 'object',
       required: ['userId', 'eventId'],
@@ -68,7 +68,7 @@ db.createCollection('registrations', {
 
 // Create reviews collection
 db.createCollection('reviews', {
-  validator: {
+  requireAuth: {
     $jsonSchema: {
       bsonType: 'object',
       required: ['userId', 'eventId', 'rating'],

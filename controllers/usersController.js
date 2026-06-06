@@ -39,7 +39,12 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body };
+    if (updateData.password) {
+      updateData.password = '********';
+    }
+   
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true , runrequireAuths: true});
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

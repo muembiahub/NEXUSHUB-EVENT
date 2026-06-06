@@ -13,7 +13,7 @@ const eventsRoutes = require('./routes/events');
 const usersRoutes = require('./routes/users');
 const registrationsRoutes = require('./routes/registrations');
 const reviewsRoutes = require('./routes/reviews');
-const isAuthenticated = require('./middleware/validator').isAuthenticated;
+const isAuthenticated = require('./middleware/requireAuth').isAuthenticated;
 
 const { swaggerUi, swaggerSpec } = require("./swagger");
 
