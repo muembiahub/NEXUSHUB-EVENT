@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const reviewsModel = require('../models/reviewsModel');
 const User = require('../models/usersModel');
 const eventsModel = require('../models/eventsModel');
@@ -13,6 +14,9 @@ const getReviews = async (req, res) => {
 
 const getReview = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
     const review = await reviewsModel.getReviewById(req.params.id);
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
@@ -29,6 +33,10 @@ const createReview = async (req, res) => {
 
     if (!userId || !eventId || rating === undefined) {
       return res.status(400).json({ error: 'userId, eventId, and rating are required' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).json({ error: 'Invalid userId or eventId format' });
     }
 
     const user = await User.getUserById(userId);
@@ -55,6 +63,9 @@ const updateReview = async (req, res) => {
     const updateData = {};
 
     if (req.body.userId) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.userId)) {
+        return res.status(400).json({ error: 'Invalid userId format' });
+      }
       const user = await User.getUserById(req.body.userId);
       if (!user) {
         return res.status(400).json({ error: 'Invalid userId' });
@@ -63,6 +74,9 @@ const updateReview = async (req, res) => {
     }
 
     if (req.body.eventId) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return res.status(400).json({ error: 'Invalid eventId format' });
+      }
       const event = await eventsModel.getEventById(req.body.eventId);
       if (!event) {
         return res.status(400).json({ error: 'Invalid eventId' });
@@ -85,6 +99,9 @@ const updateReview = async (req, res) => {
       return res.status(400).json({ error: 'No valid fields provided for update' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
     const review = await reviewsModel.updateReview(req.params.id, updateData);
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
@@ -97,6 +114,9 @@ const updateReview = async (req, res) => {
 
 const deleteReview = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
     const review = await reviewsModel.deleteReview(req.params.id);
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });

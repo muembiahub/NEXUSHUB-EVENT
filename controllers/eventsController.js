@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const eventsModel = require('../models/eventsModel');
 
 const getEvents = async (req, res) => {
@@ -11,6 +12,9 @@ const getEvents = async (req, res) => {
 
 const getEvent = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
     const event = await eventsModel.getEventById(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
@@ -32,6 +36,9 @@ const createEvent = async (req, res) => {
 
 const updateEvent = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
     const event = await eventsModel.updateEvent(req.params.id, req.body);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
@@ -44,6 +51,9 @@ const updateEvent = async (req, res) => {
 
 const deleteEvent = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid event ID' });
+    }
     const event = await eventsModel.deleteEvent(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });

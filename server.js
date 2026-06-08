@@ -91,7 +91,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
-app.use('/users', usersRoutes);
+app.use('/users', isAuthenticated, usersRoutes);
 app.use('/registrations', isAuthenticated, registrationsRoutes);
 app.use('/reviews', isAuthenticated, reviewsRoutes);
 

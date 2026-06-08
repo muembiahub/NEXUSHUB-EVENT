@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/usersModel');
 
 const  getUsers = async (req, res) => {
@@ -16,6 +17,9 @@ const  getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
     const user = await User.findById(req.params.id);
     const maskedUser = user ? { ...user.toObject(), password: '********' } : null;
     if (!user) {
@@ -53,6 +57,9 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
     const user = await User.findById(req.params.id).select('+password');
     if (!user) {
       return res.status(404).json({ error: 'User not found with given ID' });
@@ -91,6 +98,9 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found with given ID' });
