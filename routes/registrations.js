@@ -23,7 +23,7 @@ router.get('/', controller.getRegistrations);
 
 /**
  * @swagger
- * /registrations/create:
+ * /registrations:
  *   post:
  *     summary: Create a new registration
  *     tags: [Registrations]
@@ -44,11 +44,11 @@ router.get('/', controller.getRegistrations);
  *       201:
  *         description: Registration created
  */
-router.post('/create', controller.createRegistration);
+router.post('/', controller.createRegistration);
 
 /**
  * @swagger
- * /registrations/update/{id}:
+ * /registrations/{id}:
  *   put:
  *     summary: Update a registration
  *     tags: [Registrations]
@@ -73,11 +73,11 @@ router.post('/create', controller.createRegistration);
  *       404:
  *         description: Registration not found
  */
-router.put('/update/:id', controller.updateRegistration);
+router.put('/:id', controller.updateRegistration);
 
 /**
  * @swagger
- * /registrations/delete/{id}:
+ * /registrations/{id}:
  *   delete:
  *     summary: Delete a registration
  *     tags: [Registrations]
@@ -93,7 +93,7 @@ router.put('/update/:id', controller.updateRegistration);
  *       404:
  *         description: Registration not found
  */
-router.delete('/delete/:id', controller.deleteRegistration);
+router.delete('/:id', controller.deleteRegistration);
 
 /**
  * @swagger

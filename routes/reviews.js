@@ -23,7 +23,7 @@ router.get('/', controller.getReviews);
 
 /**
  * @swagger
- * /reviews/create:
+ * /reviews:
  *   post:
  *     summary: Create a new review
  *     tags: [Reviews]
@@ -46,11 +46,11 @@ router.get('/', controller.getReviews);
  *       201:
  *         description: Review created
  */
-router.post('/create', controller.createReview);
+router.post('/', controller.createReview);
 
 /**
  * @swagger
- * /reviews/update/{id}:
+ * /reviews/{id}:
  *   put:
  *     summary: Update a review
  *     tags: [Reviews]
@@ -77,11 +77,11 @@ router.post('/create', controller.createReview);
  *       404:
  *         description: Review not found
  */
-router.put('/update/:id', controller.updateReview);
+router.put('/:id', controller.updateReview);
 
 /**
  * @swagger
- * /reviews/delete/{id}:
+ * /reviews/{id}:
  *   delete:
  *     summary: Delete a review
  *     tags: [Reviews]
@@ -97,7 +97,7 @@ router.put('/update/:id', controller.updateReview);
  *       404:
  *         description: Review not found
  */
-router.delete('/delete/:id', controller.deleteReview);
+router.delete('/:id', controller.deleteReview);
 
 /**
  * @swagger

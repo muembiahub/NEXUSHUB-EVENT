@@ -22,7 +22,7 @@ router.get('/', controller.getEvents);
 
 /**
  * @swagger
- * /events/create:
+ * /events:
  *   post:
  *     summary: Create a new event
  *     tags: [Events]
@@ -47,11 +47,11 @@ router.get('/', controller.getEvents);
  *       201:
  *         description: Event created
  */
-router.post('/create', controller.createEvent);
+router.post('/', controller.createEvent);
 
 /**
  * @swagger
- * /events/update/{id}:
+ * /events/{id}:
  *   put:
  *     summary: Update an existing event
  *     tags: [Events]
@@ -84,11 +84,11 @@ router.post('/create', controller.createEvent);
  *       404:
  *         description: Event not found
  */
-router.put('/update/:id', controller.updateEvent);
+router.put('/:id', controller.updateEvent);
 
 /**
  * @swagger
- * /events/delete/{id}:
+ * /events/{id}:
  *   delete:
  *     summary: Delete an event
  *     tags: [Events]
@@ -104,7 +104,7 @@ router.put('/update/:id', controller.updateEvent);
  *       404:
  *         description: Event not found
  */
-router.delete('/delete/:id', controller.deleteEvent);
+router.delete('/:id', controller.deleteEvent);
 
 /**
  * @swagger

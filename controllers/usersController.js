@@ -23,7 +23,7 @@ const getUser = async (req, res) => {
     }
     return res.json(maskedUser);
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -37,9 +37,17 @@ const createUser = async (req, res) => {
       password: req.body.password,
     };
     const newUser = await User.create(createData);
-    return res.status(201).json(newUser);
+    const userObject = newUser.toObject();
+    delete userObject.password;
+    return res.status(201).json(userObject);
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -61,7 +69,16 @@ const updateUser = async (req, res) => {
     delete userObject.password;
     return res.json(userObject);
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+    return res.status(500).json({ error: error.message });
   }
 }
 

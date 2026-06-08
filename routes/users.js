@@ -44,7 +44,7 @@ router.get('/:id', userController.getUser);
 
 /**
  * @swagger
- * /users/create:
+ * /users:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -86,11 +86,11 @@ router.get('/:id', userController.getUser);
  *       500:
  *         description: Server error
  */
-router.post('/create',(req, res) => userController.createUser(req, res));
+router.post('/', userController.createUser);
 
 /**
  * @swagger
- * /users/update/{id}:
+ * /users/{id}:
  *   put:
  *     summary: Update an existing user
  *     tags: [Users]
@@ -106,10 +106,6 @@ router.post('/create',(req, res) => userController.createUser(req, res));
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
  *             properties:
  *               name:
  *                 type: string
@@ -134,12 +130,12 @@ router.post('/create',(req, res) => userController.createUser(req, res));
  *       500:
  *         description: Server error
  */
-router.put('/update/:id', (req, res) => userController.updateUser(req, res));
+router.put('/:id', userController.updateUser);
 
 
 /**
  * @swagger
- * /users/delete/{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user
  *     tags: [Users]
@@ -155,7 +151,7 @@ router.put('/update/:id', (req, res) => userController.updateUser(req, res));
  *       404:
  *         description: User not found
  */
-router.delete('/delete/:id', userController.deleteUser);
+router.delete('/:id', userController.deleteUser);
 
 
 

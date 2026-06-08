@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // 🔒 Hash password before saving
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   this.updatedAt = new Date();
   if (!this.createdAt) {
     this.createdAt = this.updatedAt;
@@ -54,14 +54,11 @@ userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
-
-  next();
 });
 
 // Update timestamp on update
-userSchema.pre('findOneAndUpdate', function (next) {
+userSchema.pre('findOneAndUpdate', function () {
   this.set({ updatedAt: new Date() });
-  next();
 });
 
 // 🔑 Compare password method
