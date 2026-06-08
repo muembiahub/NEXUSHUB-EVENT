@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
   try {
     const createData = {
       name: req.body.name,
-      email: req.body.email,
+      email: req.body.email?.trim().toLowerCase(),
       organization: req.body.organization,
       role: req.body.role,
       password: req.body.password,
@@ -59,7 +59,14 @@ const updateUser = async (req, res) => {
     }
 
     if (req.body.name !== undefined) user.name = req.body.name;
-    if (req.body.email !== undefined) user.email = req.body.email;
+    if (req.body.email !== undefined) {
+      const normalizedEmail = req.body.email.trim().toLowerCase();
+      const emailOwner = await User.findOne({ email: normalizedEmail });
+      if (emailOwner && emailOwner._id.toString() !== req.params.id) {
+        return res.status(409).json({ error: 'Email already exists' });
+      }
+      user.email = normalizedEmail;
+    }
     if (req.body.organization !== undefined) user.organization = req.body.organization;
     if (req.body.role !== undefined) user.role = req.body.role;
     if (req.body.password !== undefined) user.password = req.body.password;
@@ -67,7 +74,7 @@ const updateUser = async (req, res) => {
     await user.save();
     const userObject = user.toObject();
     delete userObject.password;
-    return res.json(userObject);
+    return  res.status(200).json({message: 'User updated successfully'});
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: error.message });
