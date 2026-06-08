@@ -1,127 +1,166 @@
-﻿require('dotenv').config();
-const bodyParser = require('body-parser');
-const express = require("express");
-const passport = require('passport');
-const session = require('express-session');
-const GithubStrategy = require('passport-github2').Strategy;
+﻿
+require('dotenv').config();
 
-const app = express();
+const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
+const session = require('express-session');
+const passport = require('passport');
+const GitHubStrategy = require('passport-github2').Strategy;
+
+const connectDB = require('./config/db');
+const { swaggerUi, swaggerSpec } = require('./swagger');
 
 const authRoutes = require('./routes/auth');
 const eventsRoutes = require('./routes/events');
 const usersRoutes = require('./routes/users');
 const registrationsRoutes = require('./routes/registrations');
 const reviewsRoutes = require('./routes/reviews');
-const isAuthenticated = require('./middleware/requireAuth').isAuthenticated;
 
-const { swaggerUi, swaggerSpec } = require("./swagger");
+const { isAuthenticated } = require('./middleware/requireAuth');
 
-
-const connectDB = require('./config/db');
+const app = express();
 const PORT = process.env.PORT || 3000;
-app.set('trust proxy', 1);
-app.use(bodyParser.json());
-app.use(cors({
-  origin: ['http://nexushub-event.onrender.com', 'http://localhost:3000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
 
+// Trust Render proxy
+app.set('trust proxy', 1);
+
+// Middleware
+app.use(bodyParser.json());
 
 app.use(
-  session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-  secure: true,
-  sameSite: 'lax',
-  maxAge: 60 * 60 * 1
-  }
+  cors({
+    origin: [
+      'https://nexushub-event.onrender.com',
+      'http://localhost:3000'
+    ],
+    credentials: true
   })
-  );
+);
 
- app.use(passport.initialize());
- app.use(passport.session());
+// Session
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite:
+        process.env.NODE_ENV === 'production'
+          ? 'none'
+          : 'lax',
+      maxAge: 1000 * 60 * 60 // 1 hour
+    }
+  })
+);
 
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-  passport.use(
-  new GithubStrategy(
-  {
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL:
-  process.env.GITHUB_CALLBACK_URL ||
-  'http://localhost:3000/auth/github/callback',
-  proxy: true
-  },
-  (accessToken, refreshToken, profile, done) => {
-  return done(null, profile);
-  }
+// GitHub Strategy
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: process.env.GITHUB_CALLBACK_URL,
+      proxy: true
+    },
+    (accessToken, refreshToken, profile, done) => {
+      return done(null, profile);
+    }
   )
-  );
+);
 
+// Serialize User
 passport.serializeUser((user, done) => {
-done(null, user);
+  done(null, user);
 });
 
+// Deserialize User
 passport.deserializeUser((user, done) => {
-done(null, user);
+  done(null, user);
 });
 
+// Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Routes
 app.use('/', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
-app.use('/users',usersRoutes);
+app.use('/users', usersRoutes);
 app.use('/registrations', isAuthenticated, registrationsRoutes);
 app.use('/reviews', isAuthenticated, reviewsRoutes);
 
-
-// home route
+// Home
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
-return res.send(`Welcome ${req.user.username}! You are authenticated.`);
+    return res.send(
+      `Welcome ${req.user.username}! You are authenticated.`
+    );
   }
 
   res.send('Welcome! You are not authenticated.');
+});
+
+// Debug Route
+app.get('/debug-auth', (req, res) => {
+  res.json({
+    authenticated: req.isAuthenticated(),
+    user: req.user || null,
+    session: req.session
   });
+});
 
-
-
-// callback route for GitHub authentication
+// GitHub Callback
 app.get(
   '/auth/github/callback',
   passport.authenticate('github', {
-  failureRedirect: '/api-docs',
-  session: true
+    failureRedirect: '/api-docs',
+    session: true
   }),
   (req, res) => {
-  res.redirect('/');
+    res.redirect('/');
   }
-  );
+);
 
+// Logout
+app.get('/logout', (req, res, next) => {
+  req.logout(err => {
+    if (err) return next(err);
 
-//  404 handler for unmatched routes
-  app.use((req, res) => {
-  res.status(404).send('404 Not Found - The requested resource does not exist.');
+    req.session.destroy(err => {
+      if (err) return next(err);
+
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    });
+  });
 });
 
-//   Start Server
-  async function startServer() {
-  try {
-  await connectDB();
+// 404
+app.use((req, res) => {
+  res
+    .status(404)
+    .send('404 Not Found - The requested resource does not exist.');
+});
 
-  app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log('✅ MongoDB connected');
-  });
+// Start Server
+async function startServer() {
+  try {
+    await connectDB();
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log('✅ MongoDB connected');
+    });
   } catch (error) {
-  console.error('❌ Failed to start server:', error.message);
-  process.exit(1);
+    console.error('❌ Failed to start server:', error.message);
+    process.exit(1);
   }
-  }
+}
 
 startServer();
