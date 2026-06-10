@@ -106,10 +106,11 @@ app.get(
     session: true
   }),
   (req, res) => {
-    res.send(`Authentication successful! Welcome ${req.user.username || 'user'}! You can now access protected API endpoints.`);
-    redirect('/api-docs');
+    // Redirect with a query param
+    res.redirect(`/api-docs?welcome=${encodeURIComponent(req.user.username || 'user')}`);
   }
 );
+
 
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
