@@ -1,17 +1,6 @@
-<<<<<<< HEAD
-﻿require('dotenv').config();
-const bodyParser = require('body-parser');
-const express = require("express");
-const path = require('path');
-const passport = require('passport');
-const session = require('express-session');
-const GithubStrategy = require('passport-github2').Strategy;
-=======
-﻿
 require('dotenv').config();
->>>>>>> c3cf1a93c07251b88aea806ea89a5c3f9a996475
-
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
@@ -32,10 +21,8 @@ const { isAuthenticated } = require('./middleware/requireAuth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Trust Render proxy
 app.set('trust proxy', 1);
 
-// Middleware
 app.use(bodyParser.json());
 
 app.use(
@@ -48,7 +35,6 @@ app.use(
   })
 );
 
-// Session
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -57,20 +43,15 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      sameSite:
-        process.env.NODE_ENV === 'production'
-          ? 'none'
-          : 'lax',
-      maxAge: 1000 * 60 * 60 // 1 hour
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60
     }
   })
 );
 
-// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// GitHub Strategy
 passport.use(
   new GitHubStrategy(
     {
@@ -85,60 +66,39 @@ passport.use(
   )
 );
 
-// Serialize User
 passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-// Deserialize User
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-// Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-<<<<<<< HEAD
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-// Serve the navigator UI at the site root and also mount at /ui for compatibility
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/ui', express.static(path.join(__dirname, 'public')));
-=======
-// Routes
->>>>>>> c3cf1a93c07251b88aea806ea89a5c3f9a996475
+
 app.use('/', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
 app.use('/users', isAuthenticated, usersRoutes);
 app.use('/registrations', isAuthenticated, registrationsRoutes);
 app.use('/reviews', isAuthenticated, reviewsRoutes);
 
-// Home
 app.get('/', (req, res) => {
-<<<<<<< HEAD
-  // Serve the single-page UI at root so the Render link shows the navigator immediately
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-=======
   if (req.isAuthenticated()) {
-    return res.send(
-      `Welcome ${req.user.username}! You are authenticated.`
-    );
+    return res.send(`Welcome ${req.user.username || 'user'}! You are authenticated.`);
   }
-
   res.send('Welcome! You are not authenticated.');
 });
 
-// Debug Route
 app.get('/debug-auth', (req, res) => {
   res.json({
     authenticated: req.isAuthenticated(),
     user: req.user || null,
     session: req.session
   });
->>>>>>> c3cf1a93c07251b88aea806ea89a5c3f9a996475
 });
 
-// GitHub Callback
 app.get(
   '/auth/github/callback',
   passport.authenticate('github', {
@@ -150,7 +110,6 @@ app.get(
   }
 );
 
-// Logout
 app.get('/logout', (req, res, next) => {
   req.logout(err => {
     if (err) return next(err);
@@ -164,18 +123,13 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-// 404
 app.use((req, res) => {
-  res
-    .status(404)
-    .send('404 Not Found - The requested resource does not exist.');
+  res.status(404).send('404 Not Found - The requested resource does not exist.');
 });
 
-// Start Server
 async function startServer() {
   try {
     await connectDB();
-
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log('✅ MongoDB connected');
