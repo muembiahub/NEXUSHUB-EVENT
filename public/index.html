@@ -13,9 +13,19 @@
       <p class="subtitle">Quick access to API endpoints and docs</p>
 <!-- we are building a simple API navigator -->
       <div class="grid">
-        <a class="card" href="/api-docs">API Docs</a>
         <a class="card" href="/auth/github/callback">Sign in (GitHub)</a>
       </div>
+      if (isAuthenticated) {
+        <div class="grid">
+          <a class="card" href="/events">Events</a>
+          <a class="card" href="/users">Users</a>
+          <a class="card" href="/registrations">Registrations</a>
+          <a class="card" href="/reviews">Reviews</a>
+          <a href="card" href="/api-docs"> Swagger</a>
+        </div>
+      }
+      <section class="info">
+        <h2>Endpoints</h2>
 
       <section class="info">
         <h2>Preview</h2>
