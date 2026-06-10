@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const registrationsModel = require('../models/registrationsModel');
 const User = require('../models/usersModel');
 const eventsModel = require('../models/eventsModel');
@@ -13,6 +14,9 @@ const getRegistrations = async (req, res) => {
 
 const getRegistration = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid registration ID' });
+    }
     const registration = await registrationsModel.getRegistrationById(req.params.id);
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
@@ -26,6 +30,9 @@ const getRegistration = async (req, res) => {
 const createRegistration = async (req, res) => {
   try {
     const { userId, eventId } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).json({ error: 'Invalid userId or eventId format' });
+    }
     const user = await User.getUserById(userId);
     const event = await eventsModel.getEventById(eventId);
 
@@ -43,6 +50,9 @@ const createRegistration = async (req, res) => {
 const updateRegistration = async (req, res) => {
   try {
     if (req.body.userId) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.userId)) {
+        return res.status(400).json({ error: 'Invalid userId format' });
+      }
       const user = await User.getUserById(req.body.userId);
       if (!user) {
         return res.status(400).json({ error: 'Invalid userId' });
@@ -50,12 +60,18 @@ const updateRegistration = async (req, res) => {
     }
 
     if (req.body.eventId) {
+      if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return res.status(400).json({ error: 'Invalid eventId format' });
+      }
       const event = await eventsModel.getEventById(req.body.eventId);
       if (!event) {
         return res.status(400).json({ error: 'Invalid eventId' });
       }
     }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid registration ID' });
+    }
     const registration = await registrationsModel.updateRegistration(req.params.id, req.body);
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });

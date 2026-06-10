@@ -18,6 +18,14 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
  */
 router.get('/', userController.getUsers);
 
@@ -36,8 +44,14 @@ router.get('/', userController.getUsers);
  *     responses:
  *       200:
  *         description: User found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
+ *       500:
+ *         description: Server error
  */
 router.get('/:id', userController.getUser);
 
@@ -53,36 +67,18 @@ router.get('/:id', userController.getUser);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
- *             properties:
- *               name:
- *                 type: string
- *                 example: Jonathan Muembia
- *               email:
- *                 type: string
- *                 example: jonathan@example.com
- *               password:
- *                 type: string
- *                 example: "********"
- *               organization:
- *                 type: string
- *                 example: NexusHub
- *               role:
- *                 type: string
- *                 example: user
+ *             $ref: '#/components/schemas/UserInput'
  *     responses:
  *       201:
  *         description: User created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: './models/userModel'
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid user data
+ *       409:
+ *         description: Email already exists
  *       500:
  *         description: Server error
  */
@@ -105,28 +101,20 @@ router.post('/', userController.createUser);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: Jonathan Muembia
- *               email:
- *                 type: string
- *                 example: jonathan@example.com
- *               password:
- *                 type: string
- *                 example: "********"
- *               organization:
- *                 type: string
- *                 example: NexusHub
- *               role:
- *                 type: string
- *                 example: user
+ *             $ref: '#/components/schemas/UserUpdate'
  *     responses:
  *       200:
  *         description: User updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid request
  *       404:
  *         description: User not found with given ID
+ *       409:
+ *         description: Email already exists
  *       500:
  *         description: Server error
  */

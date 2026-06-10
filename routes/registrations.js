@@ -18,6 +18,14 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of registrations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Registration'
+ *       500:
+ *         description: Server error
  */
 router.get('/', controller.getRegistrations);
 
@@ -32,17 +40,18 @@ router.get('/', controller.getRegistrations);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: string
- *               eventId:
- *                 type: string
- *               status:
- *                 type: string
+ *             $ref: '#/components/schemas/RegistrationInput'
  *     responses:
  *       201:
  *         description: Registration created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Registration'
+ *       400:
+ *         description: Invalid request data
+ *       500:
+ *         description: Server error
  */
 router.post('/', controller.createRegistration);
 
@@ -63,15 +72,20 @@ router.post('/', controller.createRegistration);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
+ *             $ref: '#/components/schemas/RegistrationUpdate'
  *     responses:
  *       200:
  *         description: Registration updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Registration'
+ *       400:
+ *         description: Invalid request
  *       404:
  *         description: Registration not found
+ *       500:
+ *         description: Server error
  */
 router.put('/:id', controller.updateRegistration);
 
@@ -92,6 +106,8 @@ router.put('/:id', controller.updateRegistration);
  *         description: Registration deleted
  *       404:
  *         description: Registration not found
+ *       500:
+ *         description: Server error
  */
 router.delete('/:id', controller.deleteRegistration);
 
@@ -110,8 +126,14 @@ router.delete('/:id', controller.deleteRegistration);
  *     responses:
  *       200:
  *         description: Registration found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Registration'
  *       404:
  *         description: Registration not found
+ *       500:
+ *         description: Server error
  */
 router.get('/:id', controller.getRegistration);
 

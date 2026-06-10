@@ -17,6 +17,14 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Event'
+ *       500:
+ *         description: Server error
  */
 router.get('/', controller.getEvents);
 
@@ -31,21 +39,18 @@ router.get('/', controller.getEvents);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               date:
- *                 type: string
- *               location:
- *                 type: string
- *               capacity:
- *                 type: integer
+ *             $ref: '#/components/schemas/EventInput'
  *     responses:
  *       201:
  *         description: Event created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid request data
+ *       500:
+ *         description: Server error
  */
 router.post('/', controller.createEvent);
 
@@ -66,23 +71,20 @@ router.post('/', controller.createEvent);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               date:
- *                 type: string
- *               location:
- *                 type: string
- *               capacity:
- *                 type: integer
+ *             $ref: '#/components/schemas/EventUpdate'
  *     responses:
  *       200:
  *         description: Event updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid request
  *       404:
  *         description: Event not found
+ *       500:
+ *         description: Server error
  */
 router.put('/:id', controller.updateEvent);
 
@@ -103,6 +105,8 @@ router.put('/:id', controller.updateEvent);
  *         description: Event deleted
  *       404:
  *         description: Event not found
+ *       500:
+ *         description: Server error
  */
 router.delete('/:id', controller.deleteEvent);
 
@@ -121,8 +125,14 @@ router.delete('/:id', controller.deleteEvent);
  *     responses:
  *       200:
  *         description: Event found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
  *       404:
  *         description: Event not found
+ *       500:
+ *         description: Server error
  */
 router.get('/:id', controller.getEvent);
 

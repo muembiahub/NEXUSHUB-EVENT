@@ -18,6 +18,14 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Review'
+ *       500:
+ *         description: Server error
  */
 router.get('/', controller.getReviews);
 
@@ -32,19 +40,18 @@ router.get('/', controller.getReviews);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: string
- *               eventId:
- *                 type: string
- *               rating:
- *                 type: integer
- *               comment:
- *                 type: string
+ *             $ref: '#/components/schemas/ReviewInput'
  *     responses:
  *       201:
  *         description: Review created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Review'
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Server error
  */
 router.post('/', controller.createReview);
 
@@ -65,17 +72,20 @@ router.post('/', controller.createReview);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               rating:
- *                 type: integer
- *               comment:
- *                 type: string
+ *             $ref: '#/components/schemas/ReviewUpdate'
  *     responses:
  *       200:
  *         description: Review updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Review'
+ *       400:
+ *         description: Invalid request
  *       404:
  *         description: Review not found
+ *       500:
+ *         description: Server error
  */
 router.put('/:id', controller.updateReview);
 
@@ -96,6 +106,8 @@ router.put('/:id', controller.updateReview);
  *         description: Review deleted
  *       404:
  *         description: Review not found
+ *       500:
+ *         description: Server error
  */
 router.delete('/:id', controller.deleteReview);
 
@@ -114,8 +126,14 @@ router.delete('/:id', controller.deleteReview);
  *     responses:
  *       200:
  *         description: Review found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Review'
  *       404:
  *         description: Review not found
+ *       500:
+ *         description: Server error
  */
 router.get('/:id', controller.getReview);
 
