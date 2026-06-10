@@ -107,6 +107,7 @@ app.get(
   }),
   (req, res) => {
     res.send(`Authentication successful! Welcome ${req.user.username || 'user'}! You can now access protected API endpoints.`);
+    redirect('/api-docs');
   }
 );
 
