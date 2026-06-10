@@ -1,6 +1,7 @@
 ﻿require('dotenv').config();
 const bodyParser = require('body-parser');
 const express = require("express");
+const path = require('path');
 const passport = require('passport');
 const session = require('express-session');
 const GithubStrategy = require('passport-github2').Strategy;
@@ -73,6 +74,9 @@ done(null, user);
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Serve the navigator UI at the site root and also mount at /ui for compatibility
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/ui', express.static(path.join(__dirname, 'public')));
 app.use('/', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
 app.use('/users',usersRoutes);
@@ -82,12 +86,9 @@ app.use('/reviews', isAuthenticated, reviewsRoutes);
 
 // home route
 app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-return res.send(`Welcome ${req.user.username}! You are authenticated.`);
-  }
-
-  res.send('Welcome! You are not authenticated.');
-  });
+  // Serve the single-page UI at root so the Render link shows the navigator immediately
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 
 
