@@ -106,7 +106,7 @@ app.get(
     session: true
   }),
   (req, res) => {
-    res.redirect('/');
+    res.send(`Authentication successful! Welcome ${req.user.username || 'user'}! You can now access protected API endpoints.`);
   }
 );
 
