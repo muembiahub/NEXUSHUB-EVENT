@@ -10,16 +10,25 @@ const registrationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
     required: true
+  },
+  status: {
+    type: String,
+    enum: ['registered', 'attended', 'cancelled'],
+    default: 'registered'
   }
 }, { timestamps: true });
 
-// Static methods used by registrationsController
+// Static methods
 registrationSchema.statics.getAllRegistrations = function() {
-  return this.find().populate('userId', '-password').populate('eventId');
+  return this.find()
+    .populate('userId', '-password')
+    .populate('eventId');
 };
 
 registrationSchema.statics.getRegistrationById = function(id) {
-  return this.findById(id).populate('userId', '-password').populate('eventId');
+  return this.findById(id)
+    .populate('userId', '-password')
+    .populate('eventId');
 };
 
 registrationSchema.statics.createRegistration = function(registrationData) {
@@ -27,7 +36,12 @@ registrationSchema.statics.createRegistration = function(registrationData) {
 };
 
 registrationSchema.statics.updateRegistration = function(id, updateData) {
-  return this.findByIdAndUpdate(id, updateData, { new: true });
+  return this.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true
+  })
+    .populate('userId', '-password')
+    .populate('eventId');
 };
 
 registrationSchema.statics.deleteRegistration = function(id) {
@@ -35,4 +49,6 @@ registrationSchema.statics.deleteRegistration = function(id) {
 };
 
 const Registration = mongoose.model('Registration', registrationSchema);
+
 module.exports = Registration;
+//  
