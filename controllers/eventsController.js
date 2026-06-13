@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const eventsModel = require('../models/eventsModel');
+const Event = require('../models/eventsModel');
 
 const getEvents = async (req, res) => {
   try {
-    const events = await eventsModel.getAllEvents();
-    res.json(events);
+    const events = await Event.getAllEvents();
+    res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -12,14 +12,19 @@ const getEvents = async (req, res) => {
 
 const getEvent = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid event ID' });
     }
-    const event = await eventsModel.getEventById(req.params.id);
+
+    const event = await Event.getEventById(id);
+
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
-    res.json(event);
+
+    res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -27,53 +32,83 @@ const getEvent = async (req, res) => {
 
 const createEvent = async (req, res) => {
   try {
-    const { title, date, description, location } = req.body;
+    const {
+      name,
+      description,
+      date,
+      location,
+      capacity
+    } = req.body;
 
-    if (!title || !date) {
-      return res.status(400).json({ error: 'Title and date are required' });
+    if (!name || !date) {
+      return res.status(400).json({
+        error: 'Name and date are required'
+      });
     }
 
     const parsedDate = new Date(date);
+
     if (Number.isNaN(parsedDate.getTime())) {
-      return res.status(400).json({ error: 'Invalid date format' });
+      return res.status(400).json({
+        error: 'Invalid date format'
+      });
     }
 
-    const eventData = {
+    const event = await Event.createEvent({
       name: name.trim(),
-      date: parsedDate,
       description,
-      location
-    };
+      date: parsedDate,
+      location,
+      capacity
+    });
 
-    const event = await eventsModel.createEvent(eventData);
     res.status(201).json(event);
   } catch (error) {
+    console.error(error);
+
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({
+        error: error.message
+      });
     }
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message
+    });
   }
 };
 
 const updateEvent = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid event ID' });
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        error: 'Invalid event ID'
+      });
     }
 
     const updateData = {};
-    if (req.body.title !== undefined) {
-      if (!req.body.title.trim()) {
-        return res.status(400).json({ error: 'Title cannot be empty' });
+
+    if (req.body.name !== undefined) {
+      if (!req.body.name.trim()) {
+        return res.status(400).json({
+          error: 'Name cannot be empty'
+        });
       }
+
       updateData.name = req.body.name.trim();
     }
 
     if (req.body.date !== undefined) {
       const parsedDate = new Date(req.body.date);
+
       if (Number.isNaN(parsedDate.getTime())) {
-        return res.status(400).json({ error: 'Invalid date format' });
+        return res.status(400).json({
+          error: 'Invalid date format'
+        });
       }
+
       updateData.date = parsedDate;
     }
 
@@ -85,45 +120,72 @@ const updateEvent = async (req, res) => {
       updateData.location = req.body.location;
     }
 
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ error: 'No valid fields provided for update' });
+    if (req.body.capacity !== undefined) {
+      updateData.capacity = req.body.capacity;
     }
 
-    const event = await eventsModel.updateEvent(req.params.id, updateData);
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        error: 'No valid fields provided'
+      });
+    }
+
+    const event = await Event.updateEvent(id, updateData);
+
     if (!event) {
-      return res.status(404).json({ error: 'Event not found' });
+      return res.status(404).json({
+        error: 'Event not found'
+      });
     }
-    res.json(event);
+
+    res.status(200).json(event);
   } catch (error) {
+    console.error(error);
+
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({
+        error: error.message
+      });
     }
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message
+    });
   }
 };
 
 const deleteEvent = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid event ID' });
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        error: 'Invalid event ID'
+      });
     }
-    const event = await eventsModel.deleteEvent(req.params.id);
+
+    const event = await Event.deleteEvent(id);
+
     if (!event) {
-      return res.status(404).json({ error: 'Event not found' });
+      return res.status(404).json({
+        error: 'Event not found'
+      });
     }
-    res.json({ message: 'Event deleted successfully' });
+
+    res.status(200).json({
+      message: 'Event deleted successfully'
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message
+    });
   }
 };
-// 
 
 module.exports = {
   getEvents,
   getEvent,
   createEvent,
   updateEvent,
-  deleteEvent,
+  deleteEvent
 };
-
-

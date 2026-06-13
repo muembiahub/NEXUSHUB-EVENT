@@ -1,13 +1,92 @@
 const express = require('express');
 const controller = require('../controllers/eventsController');
+
 const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   - name: Events
- *     description: Event management endpoints
+ * components:
+ *   schemas:
+ *     Event:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: "6a23e072913bf2194c8ccbea"
+ *         name:
+ *           type: string
+ *           example: "AI Showcase"
+ *         description:
+ *           type: string
+ *           example: "An afternoon of product demos from startups building practical AI tools."
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: "2026-09-10T13:00:00.000Z"
+ *         location:
+ *           type: string
+ *           example: "NexusHub Demo Theater"
+ *         capacity:
+ *           type: integer
+ *           example: 150
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
+ *     EventInput:
+ *       type: object
+ *       required:
+ *         - name
+ *         - date
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "AI Showcase"
+ *         description:
+ *           type: string
+ *           example: "An afternoon of product demos from startups building practical AI tools."
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: "2026-09-10T13:00:00.000Z"
+ *         location:
+ *           type: string
+ *           example: "NexusHub Demo Theater"
+ *         capacity:
+ *           type: integer
+ *           example: 150
+ *
+ *     EventUpdate:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "AI Showcase 2026"
+ *         description:
+ *           type: string
+ *           example: "Updated event description"
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: "2026-09-15T13:00:00.000Z"
+ *         location:
+ *           type: string
+ *           example: "Innovation Center"
+ *         capacity:
+ *           type: integer
+ *           example: 200
  */
+
+/**
+ * @swagger
+ * tags:
+ *   name: Events
+ *   description: Event management endpoints
+ */
+
 /**
  * @swagger
  * /events:
@@ -17,14 +96,6 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of events
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Event'
- *       500:
- *         description: Server error
  */
 router.get('/', controller.getEvents);
 
@@ -40,25 +111,45 @@ router.get('/', controller.getEvents);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/EventInput'
+ *           example:
+ *             name: "AI Showcase"
+ *             description: "An afternoon of product demos from startups building practical AI tools."
+ *             date: "2026-09-10T13:00:00.000Z"
+ *             location: "NexusHub Demo Theater"
+ *             capacity: 150
  *     responses:
  *       201:
- *         description: Event created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
+ *         description: Event created successfully
  *       400:
- *         description: Invalid request data
- *       500:
- *         description: Server error
+ *         description: Validation error
  */
 router.post('/', controller.createEvent);
 
 /**
  * @swagger
  * /events/{id}:
+ *   get:
+ *     summary: Get an event by ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Event found
+ *       404:
+ *         description: Event not found
+ */
+router.get('/:id', controller.getEvent);
+
+/**
+ * @swagger
+ * /events/{id}:
  *   put:
- *     summary: Update an existing event
+ *     summary: Update an event
  *     tags: [Events]
  *     parameters:
  *       - in: path
@@ -72,19 +163,17 @@ router.post('/', controller.createEvent);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/EventUpdate'
+ *           example:
+ *             name: "AI Showcase 2026"
+ *             description: "Updated event description"
+ *             date: "2026-09-15T13:00:00.000Z"
+ *             location: "Innovation Center"
+ *             capacity: 200
  *     responses:
  *       200:
- *         description: Event updated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
- *       400:
- *         description: Invalid request
+ *         description: Event updated successfully
  *       404:
  *         description: Event not found
- *       500:
- *         description: Server error
  */
 router.put('/:id', controller.updateEvent);
 
@@ -102,38 +191,10 @@ router.put('/:id', controller.updateEvent);
  *           type: string
  *     responses:
  *       200:
- *         description: Event deleted
+ *         description: Event deleted successfully
  *       404:
  *         description: Event not found
- *       500:
- *         description: Server error
  */
 router.delete('/:id', controller.deleteEvent);
-
-/**
- * @swagger
- * /events/{id}:
- *   get:
- *     summary: Get an event by ID
- *     tags: [Events]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Event found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Event'
- *       404:
- *         description: Event not found
- *       500:
- *         description: Server error
- */
-router.get('/:id', controller.getEvent);
 
 module.exports = router;
