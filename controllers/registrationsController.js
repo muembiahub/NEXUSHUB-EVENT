@@ -87,7 +87,6 @@ const createRegistration = async (req, res) => {
   }
 };
 
-// UPDATE (STRICT SAME AS CREATE)
 const updateRegistration = async (req, res) => {
   try {
     const { id } = req.params;
@@ -122,19 +121,22 @@ const updateRegistration = async (req, res) => {
       });
     }
 
-    const registration = await Registration.updateRegistration(id, {
-      userId,
-      eventId,
-      status
-    });
+    // 🔥 REAL SAFE UPDATE (LIKE CREATE)
+    const registration = await Registration.getRegistrationById(id);
 
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
 
+    registration.userId = userId;
+    registration.eventId = eventId;
+    registration.status = status;
+
+    const updated = await registration.save(); // 🔥 THIS FIXES EVERYTHING
+
     res.status(200).json({
       message: 'Registration updated successfully',
-      registration
+      registration: updated
     });
 
   } catch (error) {
