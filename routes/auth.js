@@ -21,7 +21,7 @@ router.get(
   passport.authenticate('github', { failureRedirect: '/auth/login', session: true }),
   (req, res) => {
     // Successful authentication
-    res.redirect('/');
+    res.redirect('/api-docs');
   }
 );
 
