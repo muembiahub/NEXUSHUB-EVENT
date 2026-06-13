@@ -34,51 +34,57 @@ const getRegistration = async (req, res) => {
   }
 };
 
-// CREATE (STRICT)
+
 const createRegistration = async (req, res) => {
   try {
     const { userId, eventId, status } = req.body;
 
+    // REQUIRED FIELDS
     if (!userId || !eventId) {
       return res.status(400).json({
-        error: 'userId and eventId are required'
+        error: "userId and eventId are required"
       });
     }
 
+    // VALID OBJECT IDS
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(eventId)
     ) {
       return res.status(400).json({
-        error: 'Invalid userId or eventId format'
+        error: "Invalid userId or eventId format"
       });
     }
 
+    // CHECK USER + EVENT EXIST
     const user = await User.getUserById(userId);
     const event = await Event.getEventById(eventId);
 
     if (!user || !event) {
       return res.status(400).json({
-        error: 'Invalid userId or eventId'
+        error: "Invalid userId or eventId"
       });
     }
 
-    const existing = await Registration.findOne({ userId, eventId });
+    // CHECK STATUS VALIDATION
+    const allowedStatus = ["registered", "attended", "cancelled"];
+    const finalStatus = status || "registered";
 
-    if (existing) {
-      return res.status(409).json({
-        error: 'Registration already exists for this user and event'
+    if (!allowedStatus.includes(finalStatus)) {
+      return res.status(400).json({
+        error: "Invalid status value"
       });
     }
 
-    const registration = await Registration.createRegistration({
+    const registration = await Registration.create({
       userId,
       eventId,
-      status: status || 'registered'
+      status: finalStatus,
+      registeredAt: new Date()
     });
 
     res.status(201).json({
-      message: 'Registration created successfully',
+      message: "Registration created successfully",
       registration
     });
 
@@ -92,60 +98,74 @@ const updateRegistration = async (req, res) => {
     const { id } = req.params;
     const { userId, eventId, status } = req.body;
 
+    // VALID ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid registration ID' });
+      return res.status(400).json({ error: "Invalid registration ID" });
     }
 
-    // REQUIRED (same as CREATE)
-    if (!userId || !eventId || !status) {
+    // REQUIRED FIELDS (STRICT like validator)
+    if (!userId || !eventId) {
       return res.status(400).json({
-        error: 'userId, eventId and status are required'
+        error: "userId and eventId are required"
       });
     }
 
+    // VALID OBJECT IDS
     if (
       !mongoose.Types.ObjectId.isValid(userId) ||
       !mongoose.Types.ObjectId.isValid(eventId)
     ) {
       return res.status(400).json({
-        error: 'Invalid userId or eventId format'
+        error: "Invalid userId or eventId format"
       });
     }
 
+    // CHECK USER + EVENT EXIST
     const user = await User.getUserById(userId);
     const event = await Event.getEventById(eventId);
 
     if (!user || !event) {
       return res.status(400).json({
-        error: 'Invalid userId or eventId'
+        error: "Invalid userId or eventId"
       });
     }
 
-    // 🔥 REAL SAFE UPDATE (LIKE CREATE)
-    const registration = await Registration.getRegistrationById(id);
+    // STATUS VALIDATION (IMPORTANT)
+    const allowedStatus = ["registered", "attended", "cancelled"];
 
-    if (!registration) {
-      return res.status(404).json({ error: 'Registration not found' });
+    if (status && !allowedStatus.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status value"
+      });
     }
 
-    registration.userId = userId;
-    registration.eventId = eventId;
-    registration.status = status;
+    // FIND AND UPDATE
+    const registration = await Registration.findByIdAndUpdate(
+      id,
+      {
+        userId,
+        eventId,
+        status
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    ).populate("userId", "-password")
+     .populate("eventId");
 
-    const updated = await registration.save(); // 🔥 THIS FIXES EVERYTHING
+    if (!registration) {
+      return res.status(404).json({
+        error: "Registration not found"
+      });
+    }
 
     res.status(200).json({
-      message: 'Registration updated successfully',
-      registration: updated
+      message: "Registration updated successfully",
+      registration
     });
 
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: 'Duplicate registration conflict'
-      });
-    }
-
     res.status(500).json({ error: error.message });
   }
 };
