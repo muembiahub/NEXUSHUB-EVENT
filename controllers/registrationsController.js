@@ -54,41 +54,70 @@ const createRegistration = async (req, res) => {
 
 const updateRegistration = async (req, res) => {
   try {
-    if (req.body.userId) {
-      if (!mongoose.Types.ObjectId.isValid(req.body.userId)) {
+    const { userId, eventId, status } = req.body;
+
+    // Validate registration ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid registration ID' });
+    }
+
+    // Validate userId if provided
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ error: 'Invalid userId format' });
       }
-      const user = await User.getUserById(req.body.userId);
+
+      const user = await User.getUserById(userId);
       if (!user) {
         return res.status(400).json({ error: 'Invalid userId' });
       }
     }
 
-    if (req.body.eventId) {
-      if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+    // Validate eventId if provided
+    if (eventId) {
+      if (!mongoose.Types.ObjectId.isValid(eventId)) {
         return res.status(400).json({ error: 'Invalid eventId format' });
       }
-      const event = await eventsModel.getEventById(req.body.eventId);
+
+      const event = await eventsModel.getEventById(eventId);
       if (!event) {
         return res.status(400).json({ error: 'Invalid eventId' });
       }
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ error: 'Invalid registration ID' });
-    }
-    const registration = await registrationsModel.updateRegistration(req.params.id, req.body);
+    // Build FULL update object (like CREATE)
+    const updateData = {
+      userId,
+      eventId,
+      status: status || 'registered'
+    };
+
+    // Remove undefined fields (important)
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
+    );
+
+    const registration = await registrationsModel.updateRegistration(
+      req.params.id,
+      updateData
+    );
+
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
+
     res.json({
-  message: 'Registration updated successfully',
-  registration
-});
+      message: 'Registration updated successfully',
+      registration
+    });
+
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(409).json({ error: 'Registration update conflicts with an existing registration for the same user and event.' });
+      return res.status(409).json({
+        error: 'Duplicate registration for same user and event'
+      });
     }
+
     res.status(500).json({ error: error.message });
   }
 };

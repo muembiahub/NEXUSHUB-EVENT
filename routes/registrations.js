@@ -1,4 +1,3 @@
-
 const express = require('express');
 const controller = require('../controllers/registrationsController');
 
@@ -7,28 +6,75 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   - name: Registrations
- *     description: Manage event registrations
+ *   name: Registrations
+ *   description: Event registration management
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Registration:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: "66b23e072913bf2194c8ccbe"
+ *         userId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc111"
+ *         eventId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc222"
+ *         status:
+ *           type: string
+ *           example: "registered"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
+ *     CreateRegistration:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - eventId
+ *       properties:
+ *         userId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc111"
+ *         eventId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc222"
+ *         status:
+ *           type: string
+ *           example: "registered"
+ *
+ *     UpdateRegistration:
+ *       type: object
+ *       properties:
+ *         userId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc111"
+ *         eventId:
+ *           type: string
+ *           example: "66a23e072913bf2194c8cc222"
+ *         status:
+ *           type: string
+ *           example: "attended"
  */
 
 /**
  * @swagger
  * /registrations:
  *   get:
- *     summary: Retrieve all registrations
- *     description: Returns a list of all event registrations.
+ *     summary: Get all registrations
  *     tags: [Registrations]
  *     responses:
  *       200:
- *         description: Registrations retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Registration'
- *       500:
- *         description: Internal server error
+ *         description: List of registrations
  */
 router.get('/', controller.getRegistrations);
 
@@ -36,27 +82,20 @@ router.get('/', controller.getRegistrations);
  * @swagger
  * /registrations/{id}:
  *   get:
- *     summary: Retrieve a registration by ID
- *     description: Returns a single registration with populated event details.
+ *     summary: Get registration by ID
  *     tags: [Registrations]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Registration ID
  *         schema:
  *           type: string
+ *         example: "66b23e072913bf2194c8ccbe"
  *     responses:
  *       200:
  *         description: Registration found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Registration'
  *       404:
  *         description: Registration not found
- *       500:
- *         description: Internal server error
  */
 router.get('/:id', controller.getRegistration);
 
@@ -64,8 +103,7 @@ router.get('/:id', controller.getRegistration);
  * @swagger
  * /registrations:
  *   post:
- *     summary: Create a new registration
- *     description: Register a user for an event.
+ *     summary: Create a registration
  *     tags: [Registrations]
  *     requestBody:
  *       required: true
@@ -74,20 +112,14 @@ router.get('/:id', controller.getRegistration);
  *           schema:
  *             $ref: '#/components/schemas/CreateRegistration'
  *           example:
- *             userId: "6a23e072913bf2194c8ccbe1"
- *             eventId: "6a23e071913bf2194c8ccbe9"
+ *             userId: "66a23e072913bf2194c8cc111"
+ *             eventId: "66a23e072913bf2194c8cc222"
  *             status: "registered"
  *     responses:
  *       201:
- *         description: Registration created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Registration'
+ *         description: Registration created
  *       400:
- *         description: Invalid request data
- *       500:
- *         description: Internal server error
+ *         description: Invalid request
  */
 router.post('/', controller.createRegistration);
 
@@ -95,16 +127,15 @@ router.post('/', controller.createRegistration);
  * @swagger
  * /registrations/{id}:
  *   put:
- *     summary: Update a registration
- *     description: Update registration information such as status.
+ *     summary: Update registration
  *     tags: [Registrations]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Registration ID
  *         schema:
  *           type: string
+ *         example: "66b23e072913bf2194c8ccbe"
  *     requestBody:
  *       required: true
  *       content:
@@ -115,17 +146,9 @@ router.post('/', controller.createRegistration);
  *             status: "attended"
  *     responses:
  *       200:
- *         description: Registration updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Registration'
- *       400:
- *         description: Invalid request data
+ *         description: Registration updated
  *       404:
  *         description: Registration not found
- *       500:
- *         description: Internal server error
  */
 router.put('/:id', controller.updateRegistration);
 
@@ -133,23 +156,20 @@ router.put('/:id', controller.updateRegistration);
  * @swagger
  * /registrations/{id}:
  *   delete:
- *     summary: Delete a registration
- *     description: Removes a registration from the system.
+ *     summary: Delete registration
  *     tags: [Registrations]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: Registration ID
  *         schema:
  *           type: string
+ *         example: "66b23e072913bf2194c8ccbe"
  *     responses:
  *       200:
- *         description: Registration deleted successfully
+ *         description: Registration deleted
  *       404:
  *         description: Registration not found
- *       500:
- *         description: Internal server error
  */
 router.delete('/:id', controller.deleteRegistration);
 
