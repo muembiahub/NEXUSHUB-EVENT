@@ -81,7 +81,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/ui', express.static(path.join(__dirname, 'public')));
 
-app.use('/', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/events', isAuthenticated, eventsRoutes);
 app.use('/users', isAuthenticated, usersRoutes);
 app.use('/registrations', isAuthenticated, registrationsRoutes);
@@ -102,31 +102,6 @@ app.get('/debug-auth', (req, res) => {
   });
 });
 
-app.get(
-  '/auth/github/callback',
-  passport.authenticate('github', {
-    failureRedirect: '/api-docs',
-    session: true
-  }),
-  (req, res) => {
-    // Redirect with a query param
-    res.redirect(`/api-docs?welcome=${encodeURIComponent(req.user.username || 'user')}`);
-  }
-);
-
-
-app.get('/logout', (req, res, next) => {
-  req.logout(err => {
-    if (err) return next(err);
-
-    req.session.destroy(err => {
-      if (err) return next(err);
-
-      res.clearCookie('connect.sid');
-      res.redirect('/');
-    });
-  });
-});
 
 app.use((req, res) => {
   res.status(404).send('404 Not Found - The requested resource does not exist.');
