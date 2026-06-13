@@ -46,7 +46,7 @@ const createRegistration = async (req, res) => {
     }
 
     const registration = await registrationsModel.createRegistration(req.body);
-    res.status(201).json(`Registration done successfully ${registration}`);
+    res.status(201).json({message: 'Registration created successfully', registration});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -81,7 +81,10 @@ const updateRegistration = async (req, res) => {
     if (!registration) {
       return res.status(404).json({ error: 'Registration not found' });
     }
-    res.json(`Registration updated successfully ${registration}`);
+    res.json({
+  message: 'Registration updated successfully',
+  registration
+});
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({ error: 'Registration update conflicts with an existing registration for the same user and event.' });

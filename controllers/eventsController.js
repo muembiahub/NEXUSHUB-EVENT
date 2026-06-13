@@ -62,7 +62,7 @@ const createEvent = async (req, res) => {
       capacity
     });
 
-    res.status(201).json(`Event created successfully ${event}`);
+    res.status(201).json({message: 'Event created successfully', event});
   } catch (error) {
     console.error(error);
 
@@ -138,7 +138,7 @@ const updateEvent = async (req, res) => {
       });
     }
 
-    res.status(200).json(`Event updated successfully ${event}`);
+    res.status(200).json({message: `Event updated successfully`, event});
   } catch (error) {
     console.error(error);
 
