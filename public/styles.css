@@ -18,8 +18,9 @@ body{
   margin:36px auto;
   padding:28px;
 }
-.title{font-size:28px;margin:0 0 6px}
+.title{font-size:28px;margin:0 0 6px;color:var(--accent)}
 .subtitle{color:var(--muted);margin:0 0 20px}
+h2{color:var(--accent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .card{display:inline-flex;align-items:center;justify-content:center;padding:18px;border-radius:12px;background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));color:var(--accent);text-decoration:none;font-weight:600;box-shadow:0 6px 18px rgba(12,17,30,0.6);border:1px solid rgba(255,255,255,0.03);transition:transform .18s ease, box-shadow .18s ease}
 .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(12,17,30,0.6);color:#fff}
