@@ -61,7 +61,7 @@ const swaggerOptions = {
           type: 'object',
           required: ['title', 'date'],
           properties: {
-            title: { type: 'string' },
+            name: { type: 'string' },
             description: { type: 'string' },
             date: { type: 'string', format: 'date-time' },
             location: { type: 'string' }
@@ -70,7 +70,7 @@ const swaggerOptions = {
         EventUpdate: {
           type: 'object',
           properties: {
-            title: { type: 'string' },
+            name: { type: 'string' },
             description: { type: 'string' },
             date: { type: 'string', format: 'date-time' },
             location: { type: 'string' }

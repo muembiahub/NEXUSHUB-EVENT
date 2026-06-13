@@ -39,7 +39,7 @@ const createEvent = async (req, res) => {
     }
 
     const eventData = {
-      title: title.trim(),
+      name: name.trim(),
       date: parsedDate,
       description,
       location
@@ -66,7 +66,7 @@ const updateEvent = async (req, res) => {
       if (!req.body.title.trim()) {
         return res.status(400).json({ error: 'Title cannot be empty' });
       }
-      updateData.title = req.body.title.trim();
+      updateData.name = req.body.name.trim();
     }
 
     if (req.body.date !== undefined) {
@@ -116,6 +116,7 @@ const deleteEvent = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// 
 
 module.exports = {
   getEvents,
@@ -124,3 +125,5 @@ module.exports = {
   updateEvent,
   deleteEvent,
 };
+
+
