@@ -164,8 +164,8 @@ router.get('/:id', controller.getEvent);
  *           schema:
  *             $ref: '#/components/schemas/EventUpdate'
  *           example:
- *             name: "AI Showcase 2026"
- *             description: "Updated event description"
+ *             name: "Showcase 2035"
+ *             description: "Technology event"
  *             date: "2026-09-15T13:00:00.000Z"
  *             location: "Innovation Center"
  *             capacity: 200
