@@ -81,7 +81,7 @@ const updateUser = async (req, res) => {
     await user.save();
     const userObject = user.toObject();
     delete userObject.password;
-    return  res.status(200).json({message: 'User updated successfully'});
+    return  res.status(200).json(userObject);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: error.message });
