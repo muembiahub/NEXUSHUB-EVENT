@@ -40,6 +40,11 @@ const createRegistration = async (req, res) => {
       return res.status(400).json({ error: 'Invalid userId or eventId' });
     }
 
+    const existingRegistration = await registrationsModel.findOne({ userId, eventId });
+    if (existingRegistration) {
+      return res.status(409).json({ error: 'A registration for this user and event already exists.' });
+    }
+
     const registration = await registrationsModel.createRegistration(req.body);
     res.status(201).json(registration);
   } catch (error) {
@@ -78,6 +83,9 @@ const updateRegistration = async (req, res) => {
     }
     res.json(registration);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Registration update conflicts with an existing registration for the same user and event.' });
+    }
     res.status(500).json({ error: error.message });
   }
 };

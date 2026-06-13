@@ -31,7 +31,10 @@ eventSchema.statics.createEvent = function(eventData) {
 };
 
 eventSchema.statics.updateEvent = function(id, updateData) {
-  return this.findByIdAndUpdate(id, updateData, { new: true });
+  return this.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true
+  });
 };
 
 eventSchema.statics.deleteEvent = function(id) {

@@ -46,6 +46,11 @@ const createReview = async (req, res) => {
       return res.status(400).json({ error: 'Invalid userId or eventId' });
     }
 
+    const existingReview = await reviewsModel.findOne({ userId, eventId });
+    if (existingReview) {
+      return res.status(409).json({ error: 'A review for this user and event already exists. Use PUT to update it.' });
+    }
+
     if (typeof rating !== 'number' || rating < 0 || rating > 5) {
       return res.status(400).json({ error: 'Rating must be a number between 0 and 5' });
     }
@@ -108,6 +113,9 @@ const updateReview = async (req, res) => {
     }
     res.json(review);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'Review update conflicts with an existing review for the same user and event.' });
+    }
     res.status(500).json({ error: error.message });
   }
 };
