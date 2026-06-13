@@ -113,10 +113,10 @@ router.get('/', controller.getEvents);
  *             $ref: '#/components/schemas/EventInput'
  *           example:
  *             name: "AI Showcase"
- *             description: "An afternoon of product demos from startups building practical AI tools."
+ *             description: "Find the way to build the next big thing"
  *             date: "2026-09-10T13:00:00.000Z"
- *             location: "NexusHub Demo Theater"
- *             capacity: 150
+ *             location: "Lubumbashi"
+ *             capacity: 500
  *     responses:
  *       201:
  *         description: Event created successfully
