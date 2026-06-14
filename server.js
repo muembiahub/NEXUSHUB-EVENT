@@ -57,7 +57,7 @@ passport.deserializeUser((user, done) => done(null, user));
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Static files
+// Static files (serves index.html, app.js, styles.css)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/ui', express.static(path.join(__dirname, 'public')));
 
@@ -79,24 +79,12 @@ app.post('/users', isAuthenticated);
 app.put('/users/:id', isAuthenticated);
 app.delete('/users/:id', isAuthenticated);
 
-// Home route
-app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.send(`Welcome ${req.user.username || 'user'}! You are authenticated.`);
-  }
-  res.send('Welcome! You are not authenticated.');
-});
-
-// Debug (optional)
-app.get('/debug-auth', (req, res) => {
-  res.json({ authenticated: req.isAuthenticated(), user: req.user || null });
-});
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).send('404 Not Found - The requested resource does not exist.');
 });
 
+// Start server only when this file is run directly (not in tests)
 if (require.main === module) {
   async function startServer() {
     try {
