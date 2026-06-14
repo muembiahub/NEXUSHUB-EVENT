@@ -22,71 +22,64 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
-
 app.use(bodyParser.json());
 
-app.use(
-  cors({
-    origin: [
-      'https://nexushub-event.onrender.com',
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001'
-    ],
-    credentials: true
-  })
-);
+app.use(cors({
+  origin: ['https://nexushub-event.onrender.com', 'http://localhost:3000'],
+  credentials: true
+}));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 1000 * 60 * 60
-    }
-  })
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 1000 * 60 * 60
+  }
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL,
-      proxy: true
-    },
-    (accessToken, refreshToken, profile, done) => {
-      return done(null, profile);
-    }
-  )
-);
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CALLBACK_URL,
+  proxy: true
+}, (accessToken, refreshToken, profile, done) => done(null, profile)));
 
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
-});
-
+// Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/ui', express.static(path.join(__dirname, 'public')));
 
+// Auth routes (public)
 app.use('/auth', authRoutes);
-app.use('/events', isAuthenticated, eventsRoutes);
-app.use('/users', isAuthenticated, usersRoutes);
-app.use('/registrations', isAuthenticated, registrationsRoutes);
-app.use('/reviews', isAuthenticated, reviewsRoutes);
 
+// Mount all routes (without global auth)
+app.use('/events', eventsRoutes);
+app.use('/users', usersRoutes);
+app.use('/registrations', registrationsRoutes);
+app.use('/reviews', reviewsRoutes);
+
+// Protect only POST, PUT, DELETE on events and users (two collections)
+app.post('/events', isAuthenticated);
+app.put('/events/:id', isAuthenticated);
+app.delete('/events/:id', isAuthenticated);
+
+app.post('/users', isAuthenticated);
+app.put('/users/:id', isAuthenticated);
+app.delete('/users/:id', isAuthenticated);
+
+// Home route
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     return res.send(`Welcome ${req.user.username || 'user'}! You are authenticated.`);
@@ -94,30 +87,31 @@ app.get('/', (req, res) => {
   res.send('Welcome! You are not authenticated.');
 });
 
+// Debug (optional)
 app.get('/debug-auth', (req, res) => {
-  res.json({
-    authenticated: req.isAuthenticated(),
-    user: req.user || null,
-    session: req.session
-  });
+  res.json({ authenticated: req.isAuthenticated(), user: req.user || null });
 });
 
-
+// 404 handler
 app.use((req, res) => {
   res.status(404).send('404 Not Found - The requested resource does not exist.');
 });
 
-async function startServer() {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log('✅ MongoDB connected');
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error.message);
-    process.exit(1);
+if (require.main === module) {
+  async function startServer() {
+    try {
+      await connectDB();
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log('✅ MongoDB connected');
+      });
+    } catch (error) {
+      console.error('❌ Failed to start server:', error.message);
+      process.exit(1);
+    }
   }
+
+  startServer();
 }
 
-startServer();
+module.exports = app;

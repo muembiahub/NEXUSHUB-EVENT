@@ -1,19 +1,18 @@
 const mongoose = require('mongoose');
 const User = require('../models/usersModel');
 
-const  getUsers = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
     const users = await User.find();
     const maskedUsers = users.map(user => ({
-  ...user.toObject(),
-  password: '********'
-}));
+      ...user.toObject(),
+      password: '********'
+    }));
     return res.json(maskedUsers);
-
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+};
 
 const getUser = async (req, res) => {
   try {
@@ -21,15 +20,15 @@ const getUser = async (req, res) => {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
     const user = await User.findById(req.params.id);
-    const maskedUser = user ? { ...user.toObject(), password: '********' } : null;
     if (!user) {
       return res.status(404).json({ error: 'User not found with given ID' });
     }
+    const maskedUser = { ...user.toObject(), password: '********' };
     return res.json(maskedUser);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+};
 
 const createUser = async (req, res) => {
   try {
@@ -39,6 +38,8 @@ const createUser = async (req, res) => {
       organization: req.body.organization,
       role: req.body.role,
       password: req.body.password,
+      phone: req.body.phone || '',
+      bio: req.body.bio || ''
     };
     const newUser = await User.create(createData);
     const userObject = newUser.toObject();
@@ -53,14 +54,14 @@ const createUser = async (req, res) => {
     }
     return res.status(500).json({ error: error.message });
   }
-}
+};
 
 const updateUser = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
-    const user = await User.findById(req.params.id).select('+password');
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found with given ID' });
     }
@@ -77,24 +78,23 @@ const updateUser = async (req, res) => {
     if (req.body.organization !== undefined) user.organization = req.body.organization;
     if (req.body.role !== undefined) user.role = req.body.role;
     if (req.body.password !== undefined) user.password = req.body.password;
+    if (req.body.phone !== undefined) user.phone = req.body.phone;
+    if (req.body.bio !== undefined) user.bio = req.body.bio;
 
     await user.save();
     const userObject = user.toObject();
     delete userObject.password;
-    return  res.status(200).json(userObject);
+    return res.status(200).json(userObject);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ error: error.message });
-    }
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'Invalid user ID' });
     }
     if (error.code === 11000) {
       return res.status(409).json({ error: 'Email already exists' });
     }
     return res.status(500).json({ error: error.message });
   }
-}
+};
 
 const deleteUser = async (req, res) => {
   try {
@@ -109,7 +109,7 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 module.exports = {
   getUsers,
